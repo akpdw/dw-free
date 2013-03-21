@@ -1,0 +1,34 @@
+[%# bookmarks.tt
+
+Page that shows the top bookmarks
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<section id="bmark_bookmarks">
+<h2>Bookmarks</h2>
+  [% FOREACH bookmark = bookmarks %]
+  <article class="bmark">
+    <div class="bmark_title">Title: <a href = "[% bookmark.url | url %]">[% bookmark.title %]</a></div>
+    <div class="bmark_url">Url: <a href = "[% bookmark.url | url %]">[% bookmark.url %]</a></div>
+    <div class="bmark_tags">Tags: [% FOREACH tag = bookmark.tags %]<a href="/bookmarks/tag/[% tag | html %]">[% tag | html %]</a> [% END %]</div>
+  </article>
+  [% END %]
+</section>
+
+[% IF toptags %]
+<section id="bmark_tags">
+<h2>Tags</h2>
+
+<ol class="dw_bmark_tag_list">
+  [% FOREACH tag = toptags %]
+  <li><a href = "/bookmarks/tag/[% tag.keyword %]">[% tag.keyword %]</a> ([% tag.kwcount %])</li>
+  [% END %]
+</ol>
+</section>
+[% END %]

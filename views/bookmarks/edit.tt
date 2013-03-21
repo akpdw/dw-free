@@ -1,0 +1,23 @@
+[%# bookmarks.tt
+
+Nav section for bookmarks
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+<div class="bmark_edit">
+  <ul>
+    <li>All</li>
+    <li>None</li>
+    <li>Make private</li>
+    <li>Make public</li>
+    <li>Access lock</li>
+    <li>Add tag</li>
+    <li>Remove tag</li>
+    <li>Delete</li>
+  </ul>
+</div>

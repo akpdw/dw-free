@@ -1,0 +1,37 @@
+[%# bookmarks.tt
+
+Page that shows the bookmarks for a particular entry
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<p>Bookmarks for <a href = "[% entry.url %]">[% entry.subject %]</a></p>
+<table>
+  <thead>
+    <tr>
+      <th>Tag</th>
+      <th>Title</th>
+      <th>User</th>
+      <th>Security</th>
+      <th>Date</th>
+      <th>Comment</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH bookmark = bookmarks %]
+    <tr>
+      <td>[% bookmark.tag_string | html %]</td>
+      <td><a href = "[% bookmark.url | url %]">[% bookmark.title %]</a></td>
+      <td>[% bookmark.user.ljuser_display %]</td>
+      <td>[% bookmark.security | html %]</td>
+      <td>[% bookmark.last_modified %]</td>
+      <td>[% bookmark.comment | html %]</td>
+    </td>
+    [% END %]
+  </tbody>
+</table>

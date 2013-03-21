@@ -451,6 +451,13 @@ $img{post} = {
     alt => '',
 };
 
+$img{bookmark} = {
+    src => '/add-bookmark.png',
+    width => 16,
+    height => 16,
+    alt => 'bookmark.add',
+};
+
 # load the site-local version, if it's around.
 eval "use LJ::Local::Img;";
 

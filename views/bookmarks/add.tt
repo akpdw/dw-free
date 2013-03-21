@@ -1,0 +1,97 @@
+[%# bookmarks.tt
+
+Page that shows the bookmarks
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = '.title' | ml(sitename = site.nameshort) -%]
+
+[%- CALL dw.active_resource_group( "jquery" ) -%]
+
+[%- dw.need_res(
+    "stc/simple-form.css",
+    "stc/bookmarks.css",
+    "stc/jquery/jquery.ui.core.css",
+    "stc/jquery/jquery.ui.theme.smoothness.css"
+) -%]
+
+[%- dw.need_res( { group => "jquery" },
+    # jquery ui
+    "js/jquery.bookmark.js",
+    "js/jquery/jquery.ui.core.js",
+    "js/jquery/jquery.ui.menu.js",
+    "js/jquery/jquery.ui.widget.js",
+    "js/jquery/jquery.ui.autocomplete.js"
+) -%]
+
+[% IF error_list %]
+    <div class='error-box'>
+    <p>[% '.error.header' | ml %]</p>
+    <ul class='error-list'>
+        [% FOREACH error IN error_list.keys %]
+            <li>[% ".error." _ error_list.$error | ml %]</li>
+        [% END %]
+    </ul>
+    </div>
+[% END %]
+
+[%# FIXME find better place for this information %]
+Logged in as [% remote.ljuser_display %]
+
+<div class="simple-form bmark-form"> 
+  <form method="post" action="/bookmarks/new">
+    [% dw.form_auth %]
+    <fieldset>
+      <legend>[% '.legend' | ml %]</legend>
+      <ol>
+[%# URL/DW Entry section %] 
+        [% IF bookmark.type== 'url' %]
+        <li class="bmark-type-url"><label for="url">[% '.url' | ml %]</label> <input type="text" name="url" value="[% bookmark.url | html %]"/></li>
+	[% END %]
+        [% IF bookmark.type== 'entry' or bookmark.type == 'comment' %]
+	<li class="bmark-type-entry"><label for="journal">[% '.journal' | ml %]</label><input type="text" name="journal" value="[% bookmark.journal | html %]"/> </li>
+	<li class="bmark-type-entry"><label for="ditemid">[% '.ditemid' | ml %]</label> <input type="text" name="ditemid" value="[% bookmark.ditemid | html %]"/></li>
+        [% IF bookmark.type == 'comment' %]
+	<li class="bmark-type-comment"><label for="talkid">[% '.talkid' | ml %]</label><input type="text" name="talkid" value="[% bookmark.talkid %]"/></li>
+        [% END %]
+        [% END %]
+
+        <div style="display: none;">
+        <li>
+          <fieldset>
+	    <legend>[% '.type' | ml %]</legend> 
+	    <label><input class="bmark_type_radio" type="radio" name="type" value="url"[% IF bookmark.type == 'url' %] checked[% END %]/> [% '.type.url' | ml %]</label> 
+            <label><input class="bmark_type_radio" type="radio" name="type" value="entry"[% IF bookmark.type == 'entry' %] checked[% END %]/>  [% '.type.entry' | ml %]</label>
+	    <label><input class="bmark_type_radio" type="radio" name="type" value="comment"[% IF bookmark.type == 'comment' %] checked[% END %]/> [% '.type.comment' | ml %]</label> 
+	  </fieldset>
+	</li>
+        </div>
+
+[%# end URL/DW Entry section %] 
+        <li><label for="title">[% '.bookmark.title' | ml %]</label><input type="text" name="title" value="[% bookmark.title | html %]"/></li>
+        <li><label for="comment">[% '.comment' | ml %]</label><textarea name="comment" rows=4 cols=30 width="100%"</textarea>[% bookmark.comment | html %]</textarea></li>
+        <li><label for="tag_string">[% '.tag' | ml %]</label><input type="text" name="tag_string" value="[% bookmark.tag | html %]"/></li>
+        <li>
+	  <fieldset>
+	    <legend>[% '.security' | ml %]</legend> 
+            <label><input type="radio" name="security" value="public"[% IF bookmark.security == 'public' %] checked[% END %]/> [% '.security.public' | ml %]</label>
+            <label><input type="radio" name="security" value="usemask"[% IF bookmark.security == 'usemask' %] checked[% END %]/>  [% '.security.access_list' | ml %]</label>
+            <label><input type="radio" name="security" value="private"[% IF bookmark.security == 'private' %] checked[% END %]/> [% '.security.private' | ml %]</label>
+	  </fieldset>
+        </li>
+      </ol>
+    </fieldset>
+    <fieldset class="submit">
+      <input [% IF fragment %]data-dwb-submit-fragment="1"[% END %] type="submit" value="[% '.create' | ml %]">
+    </fieldset>
+  </form>
+</div>
+
+<div>
+  <a href = "javascript:q=location.href;if(document.getSelection){d=document.getSelection();}else{d='';};p=document.title;void(open('http://www.akpdw.net/bookmarks/new?fragment=1&bookmarklet=1&url='+encodeURIComponent(q)+'&comment='+encodeURIComponent(d)+'&title='+encodeURIComponent(p),'Dreamwidth','toolbar=no,width=600,height=400'));">DW Bookmark</a>
+</div>

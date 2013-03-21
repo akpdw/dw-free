@@ -734,8 +734,8 @@ sub alloc_global_counter
 #       'Z' == import status item, 'X' == eXternal account
 #       'F' == filter id, 'Y' = pic/keYword mapping id
 #       'A' == mediA item id, 'O' == cOllection id,
-#       'N' == collectioN item id
-#
+#       'N' == collectioN item id, 'B' == Bookmark Prefs 
+
 sub alloc_user_counter
 {
     my ($u, $dom, $opts) = @_;
@@ -861,6 +861,9 @@ sub alloc_user_counter
     } elsif ($dom eq "Y") {
         $newmax = $u->selectrow_array("SELECT MAX(mapid) FROM userpicmap3 WHERE userid=?",
                                       undef, $uid);
+    } elsif ($dom eq "B") {
+        $newmax = $u->selectrow_array("SELECT MAX(id) FROM bookmark_prefs WHERE userid=?",
+                                         undef, $uid);
     } elsif ($dom eq "A") {
         $newmax = $u->selectrow_array("SELECT MAX(mediaid) FROM media WHERE userid = ?",
                                       undef, $uid);

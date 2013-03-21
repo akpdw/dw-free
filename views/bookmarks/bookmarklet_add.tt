@@ -1,0 +1,43 @@
+<!doctype html>
+  [%- BLOCK block.need_res -%][%- END -%]
+  [%- BLOCK block.head -%]
+  <head>
+    [%# FIXME include via need_res %]
+    <title>Add Bookmark</title>
+<!-- need res -->
+[% dw.need_res( "stc/simple-form.css" ) %]
+[%- dw.need_res( { group => "fragment" }, "stc/simple-form.css", "stc/jquery.postoptions.css", "js/jquery.postoptions.js" ) -%]
+<!-- done need res -->
+
+    [%# FIXME include via need_res %]
+    <link rel="stylesheet" type="text/css" href="/stc/simple-form.css" />
+    <link rel="stylesheet" type="text/css" href="/stc/bookmarks.css" />
+    [%#
+    <link rel="stylesheet" type="text/css" href="/stc/jquery/jquery.ui.core.css"/>
+    <link rel="stylesheet" type="text/css" href="/stc/jquery/jquery.ui.theme.smoothness.css" />
+
+    <script type="text/javascript" src="/js/jquery/jquery-1.8.3.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.dialog.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.menu.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.autocomplete.js"></script>
+    %]
+ <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/jquery.bookmark.js"></script>
+  </head>
+  [%- END -%]
+  
+  [%- BLOCK block.body -%]
+  <body class="bookmarklet">
+    [%# FIXME get via properties %]
+    <h1>New Bookmark</h1>
+  [% dw.scoped_include( "bookmarks/add.tt" ); %]
+  </body>
+  [%- END -%]
+<html>
+    [% PROCESS block.head %]
+    [% PROCESS block.body %]
+</html>

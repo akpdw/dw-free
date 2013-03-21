@@ -1,0 +1,18 @@
+[%# bookmarks/page_template.tt
+
+The page template for bookmarks.  Includes basic css, navigation, and page
+layout for bookmark pages, plus the included main page (as bmarK_main_page).
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% dw.need_res('stc/bookmarks.css') %]
+
+[% dw.scoped_include( "bookmarks/nav.tt" ); %]
+
+[% dw.scoped_include( bmark_main_page ); %]

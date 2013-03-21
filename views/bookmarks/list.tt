@@ -1,0 +1,56 @@
+[%# bookmarks.tt
+
+Lists a set of bookmarks and shows an appropriate set of tags along with them.
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[% IF editable %]
+<nav class="bmark_nav">
+  <ul>
+    <li><a id="nav_bmarks_all" href = "[%- user.journal_base | url %]/bookmarks">all</a></li>
+    <li><a id="nav_bmarks_private" href = "[%- user.journal_base | url %]/bookmarks?q=security:private">private</a></li>
+    <li><a id="nav_bmarks_locked" href = "[%- user.journal_base | url %]/bookmarks?q=security:locked">locked</a></li>
+    <li><a id="nav_bmarks_public" href = "[%- user.journal_base | url %]/bookmarks?q=security:public">public</a></li>
+    <li><a id="nav_bmarks_untagged" href = "[%- user.journal_base | url %]/bookmarks?q=untagged">untagged</a></li>
+    <li><a id="nav_bmarks_manage" href = "[%- user.journal_base | url %]/bookmarks/manage">manage</a></li>
+  </ul>
+</nav>
+[% END %]
+
+[% IF remote %]
+<div class="bmark_nav">
+    <li><a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a></li>
+</div>
+[% END %]
+
+<section id="bmark_bookmarks">
+<ol class="dw_bmark_list">
+<h2>[% IF user %][% user.ljuser_display %]'s [% END %]Bookmarks</h2>
+  [% FOREACH bookmark = bookmarks %]
+  <li>[% dw.scoped_include( "bookmarks/bookmark.tt" ); %]</li>
+  [% END %]
+</ol>
+
+[% IF page_before %]
+<a href = "/bookmarks?before=[% page_before %]">Previous Page</a>  
+[% END %]
+
+[% IF page_after %]
+<a href = "/bookmarks?after=[% page_after %]">Next Page</a>  
+[% END %]
+</section>
+
+<section id="bmark_tags">
+<h2>[% '.header.tags' | ml %]</h2>
+<ol class="dw_bmark_tag_list">
+  [% FOREACH tagmap = taglist %]
+  <li><a href = "/bookmarks/tag/[% tagmap.tag %]">[% tagmap.tag %]</a> ([% tagmap.tagcount %])</li>
+  [% END %]
+</ol>
+</section>

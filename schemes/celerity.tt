@@ -56,7 +56,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 <div id="account-links" role="navigation">
                     [% PROCESS block.accountlinks %]
                 </div><!-- end account links-->
-                <nav role="navigation">
+                <nav class="mainnav" role="navigation">
                     [% PROCESS block.userpic %]
                     [% PROCESS block.menunav %]
                 </nav>

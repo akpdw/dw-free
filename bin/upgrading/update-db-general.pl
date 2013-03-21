@@ -3206,6 +3206,132 @@ CREATE TABLE captcha_cache (
 )
 EOC
 
+register_tablecreate("bookmarks", <<'EOC');
+CREATE TABLE bookmarks (
+       id int(20) unsigned NOT NULL AUTO_INCREMENT,
+       userid int(10) unsigned NOT NULL,
+       type enum('url', 'entry', 'comment') NOT NULL,
+       security enum('public', 'usemask', 'private') NOT NULL,
+       allowmask bigint(20) unsigned,
+       title varchar(256) NOT NULL,
+       url varchar(160),
+       journalid int(10) unsigned,
+       ditemid int(10) unsigned,
+       talkid mediumint(8) unsigned,
+       comment varchar(1024),
+       created timestamp NOT NULL,
+       last_modified timestamp NOT NULL,
+       PRIMARY KEY (id)
+) ENGINE=InnoDB;
+EOC
+
+post_create("bookmarks",
+            "sqltry" => "ALTER TABLE bookmarks
+      ADD INDEX BOOKMARK_USER_IDX(userid),
+      ADD INDEX BOOKMARK_URL_IDX(url),
+      ADD INDEX BOOKMARK_ENTRY_IDX(journalid, ditemid);");
+
+register_tablecreate("bookmarks_tags", <<'EOC');
+CREATE TABLE bookmarks_tags (
+       bookmarkid int(20) unsigned NOT NULL,
+       kwid int(20) unsigned NOT NULL,
+       PRIMARY KEY (bookmarkid, kwid)
+) ENGINE=InnoDB;
+EOC
+
+post_create("bookmarks_tags",
+            "sqltry" => "ALTER TABLE bookmarks_tags 
+      ADD CONSTRAINT FK_BMARK_TAGS_BMARKID
+      FOREIGN KEY (bookmarkid) 
+      REFERENCES bookmarks(id);",
+            "sqltry" => "ALTER TABLE bookmarks_tags 
+      ADD CONSTRAINT FK_BMARK_TAGS_KWID
+      FOREIGN KEY (kwid) 
+      REFERENCES sitekeywords(kwid);");
+
+
+register_tablecreate("bookmarks_prefs", <<'EOC');
+CREATE TABLE bookmarks_prefs (
+       id int(20) unsigned NOT NULL AUTO_INCREMENT,
+       userid int(10) unsigned NOT NULL,
+       kwid int(20) unsigned NOT NULL,
+       security enum('public', 'usemask', 'private') NOT NULL,
+       allowmask bigint(20) unsigned,
+       comment varchar(256),
+       PRIMARY KEY (id),
+       UNIQUE(userid, kwid)
+) ENGINE=InnoDB;
+EOC
+
+post_create("bookmarks_prefs",
+            "sqltry" => "ALTER TABLE bookmarks_prefs 
+      ADD INDEX bprefuser(userid),
+      ADD INDEX bpreftag(kwid),
+      ADD CONSTRAINT FK_BMARK_PREFS_KWID
+      FOREIGN KEY (kwid) 
+      REFERENCES sitekeywords(kwid);");
+
+register_tablecreate("bookmarks_bundles", <<'EOC');
+
+CREATE TABLE bookmarks_bundles (
+       id int(20) unsigned NOT NULL AUTO_INCREMENT,
+       userid int(10) unsigned NOT NULL,
+       name varchar(80) NOT NULL,
+       comment varchar(256),
+       PRIMARY KEY (id),
+       UNIQUE(userid, name)
+) ENGINE=InnoDB;
+EOC
+
+post_create("bookmarks_bundles",
+            "sqltry" => "ALTER TABLE bookmarks_bundles
+      ADD INDEX BUNDLE_USER_IDX(userid);");
+
+register_tablecreate("bundles_tags", <<'EOC');
+CREATE TABLE bundles_tags (
+       bundleid int(20) unsigned NOT NULL,
+       kwid int(20) unsigned NOT NULL,
+       PRIMARY KEY (bundleid, kwid)
+) ENGINE=InnoDB;
+EOC
+
+post_create("bookmarks_bundles",
+            "sqltry" => "ALTER TABLE bundles_tags 
+      ADD CONSTRAINT FK_BUNDLES_TAGS_BUNDLEID
+      FOREIGN KEY (bundleid) 
+      REFERENCES bookmarks_bundles(id);",
+            "sqltry" => "ALTER TABLE bundles_tags 
+      ADD CONSTRAINT FK_BUNDLES_TAGS_KWID
+      FOREIGN KEY (kwid) 
+      REFERENCES sitekeywords(kwid);");
+
+register_tablecreate("public_bookmark_kws", <<'EOC');
+CREATE VIEW public_bookmark_kws AS 
+      SELECT sk.keyword, sk.kwid, b.id as bookmarkid
+      FROM bookmarks_tags bt
+      JOIN bookmarks b
+      ON   b.id=bt.bookmarkid
+      JOIN sitekeywords sk
+      ON   bt.kwid = sk.kwid
+      LEFT JOIN bookmarks_prefs bp
+      ON   bp.kwid = bt.kwid AND bp.userid = b.userid
+      JOIN user u
+      ON   u.userid = b.userid
+      WHERE COALESCE(bp.security, b.security, 'public') = 'public'
+      AND u.statusvis = 'V';
+
+EOC
+
+register_tablecreate("public_bookmarks", <<'EOC');
+CREATE VIEW public_bookmarks AS 
+      SELECT b.*
+      FROM bookmarks b
+      JOIN user u
+      ON   u.userid = b.userid
+      WHERE b.security = 'public'
+      AND u.statusvis = 'V';
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes

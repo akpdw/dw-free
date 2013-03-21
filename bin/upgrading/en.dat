@@ -23,6 +23,8 @@ BML.parse_multipart.unknowntype=Unknown content type
 
 bml.requirepost=As a security precaution, the page you're viewing requires a POST request, not a GET. If you're trying to submit this form legitimately, please contact us.
 
+bookmark.add=Add bookmark
+
 btn.add=Add
 
 btn.search=Search

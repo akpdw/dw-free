@@ -1,0 +1,97 @@
+div#content {
+    overflow: auto;
+}
+
+div {
+    overflow: auto;
+}
+
+ol.dw_bmark_list {
+    list-style-type: none;
+}
+ol.dw_bmark_tag_list {
+    list-style-type: none;
+}
+
+article.bmark {
+    margin: 2em 1em 1em 1em;
+    background: #ddd;
+    border: 1px solid #000;
+    padding: 1em 1em 1em 1em;
+}
+
+section#bmark_bookmarks {
+    width: 65%;
+    float: left;
+}
+section#bmark_tags {
+    width: 30%;
+    float: right;
+}
+
+nav.bmark_nav {
+    width: 100%;
+    font-weight: bold;
+    clear: both;
+    overflow: auto;
+    float: left;
+    height: auto;
+    background: none;
+}
+
+nav.bmark_nav ul {
+    overflow: auto;
+    list-style: none;
+    float: left;
+}
+nav.bmark_nav ul li {
+    overflow: auto;
+    float: left;
+    margin-right: 2em;
+    link-style: none;
+    vertical-align: middle;
+    display: inline;
+    line-height: 3em;
+}
+
+nav.bmark_nav ul li a {
+    text-decoration: none;
+}
+
+div.bmark_title {
+    font-weight: bold;
+    font-size: larger;
+}
+
+div.bmark_url {
+    opacity: 0.75;
+}
+
+div.bmark_tags {
+    color: red;
+}
+
+/* --- entry form --- */
+
+.bookmarklet {
+    font: 12px Verdana,Helvetica,Arial,sans-serif;
+}
+.bmark-form {
+    border: 1px solid #000;
+    border-radius: 10px;
+    overflow: auto;
+    width: 580px;
+}
+
+.bmark-form fieldset ol {
+    float: left;
+    list-style: none;
+    padding: 1em 0 0 0;
+    margin: 0;
+    width: 100%;
+}
+
+.ui-autocomplete-loading {
+    background: white url('/img/ajax-loader.gif') right center no-repeat;
+}
+

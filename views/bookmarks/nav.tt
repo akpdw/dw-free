@@ -1,0 +1,28 @@
+[%# bookmarks/nav.tt
+
+Nav section for bookmarks
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+ <nav class="bmark_nav">
+  <ul class="bmark_nav">
+    [% IF remote %]
+    <li><a href = "[%- remote.journal_base | url %]/bookmarks">[% '.mybookmarks' | ml %]</a></li> 
+    <li><a href = "[%- site.root | url %]/bookmarks/new">[% '.add' | ml %]</a></li> 
+    <li><a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a></li>
+    [% END %]
+    <li><a href = "[%- site.root | url %]/bookmarks">[% '.popular' | ml %]</a></li>	
+    <li><a href = "[%- site.root | url %]/bookmarks/recent">[% '.recent' | ml %]</a></li>
+    [% IF remote %]
+    <li><a href = "[%- remote.journal_base | url %]/bookmarks/watch">[% '.watch' | ml %]</a></li>
+    <li><a href = "[%- remote.journal_base | url %]/bookmarks/network">[% '.network' | ml %]</a></li>
+    [% END %]
+    <li class="bmark_search">[% '.search' | ml %] <input type="text" name="bmark_search_string"/></li>
+  </ul>
+</nav>

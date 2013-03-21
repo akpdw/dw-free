@@ -160,35 +160,35 @@ body {
 
 #canvas.vertical-nav #header-search { z-index: 100; }
 
-#canvas.vertical-nav nav { position: absolute;
+#canvas.vertical-nav nav.mainnav { position: absolute;
     top: 120px;
     left: 0;
     width: 8.25em;
     background-color: #222222;
     }
-#canvas.vertical-nav nav ul { margin-top: 3.5em; /*to clear search bar */
+#canvas.vertical-nav nav.mainnav ul { margin-top: 3.5em; /*to clear search bar */
         padding-left: 0;
         margin-left: 0;
         font-size: small;
         list-style: none;
         }
-#canvas.vertical-nav nav ul ul {
+#canvas.vertical-nav nav.mainnav ul ul {
             margin-top: 0;  /* undo the above*/
         }
-#canvas.vertical-nav nav a {color: #ffffff;
+#canvas.vertical-nav nav.mainnav a {color: #ffffff;
     display: block;
     text-decoration: none; }
-nav a:hover { background-color: #444444; }
-nav .topnav a {font-weight: bold;
+nav.mainnav a:hover { background-color: #444444; }
+nav.mainnav .topnav a {font-weight: bold;
         padding: .20em 5px;}
-nav .subnav a {font-weight: normal;
+nav.mainnav .subnav a {font-weight: normal;
         padding: .20em 5px .20em 1em; }
 
 /* Horizontal */
 
 #canvas.horizontal-nav { background-color: #111111; }
 
-#canvas.horizontal-nav nav {
+#canvas.horizontal-nav nav.mainnav {
     position: absolute;
     top: 120px;
     left: 0;
@@ -202,20 +202,20 @@ nav .subnav a {font-weight: normal;
 	border-top: 1px solid #000;
 	border-bottom: 1px solid #000;
 }
-#canvas.horizontal-nav nav ul { margin-left: 0;
+#canvas.horizontal-nav nav.mainnav ul { margin-left: 0;
 	padding-left: 0;
 	list-style: none; }
-#canvas.horizontal-nav nav ul li {
+#canvas.horizontal-nav nav.mainnav ul li {
     float: left;
     position: relative;
     display: block;
     height: 100%;
     width: 0;
 }
-#canvas.horizontal-nav nav ul > li {
+#canvas.horizontal-nav nav.mainnav ul > li {
     width: auto;
 }
-#canvas.horizontal-nav nav ul li a {
+#canvas.horizontal-nav nav.mainnav ul li a {
     display: block;
     color: #fff;
     text-decoration: none;
@@ -223,20 +223,20 @@ nav .subnav a {font-weight: normal;
     padding-right: 0.75em;
 }
 /* .hover is a class added by js for the currently hovered/focused menu */
-#canvas.horizontal-nav nav ul li.hover a {
+#canvas.horizontal-nav nav.mainnav ul li.hover a {
     height: 100%;
     background-color: #333;
     color: #fff;
     width: 100%;
 }
-#canvas.horizontal-nav nav ul li.hover a:hover {
+#canvas.horizontal-nav nav.mainnav ul li.hover a:hover {
     background-color: #222;
     cursor: pointer;
 }
-#canvas.horizontal-nav nav ul li ul {
+#canvas.horizontal-nav nav.mainnav ul li ul {
     display: none;
 }
-#canvas.horizontal-nav nav ul li.hover ul {
+#canvas.horizontal-nav nav.mainnav ul li.hover ul {
     display: block;
     position: absolute;
     top: 2.5em;
@@ -244,11 +244,11 @@ nav .subnav a {font-weight: normal;
     width: 14em;
     background-color: #333;
 }
-#canvas.horizontal-nav nav ul li ul li {
+#canvas.horizontal-nav nav.mainnav ul li ul li {
     float: none;
     width: 100%;
 }
-#canvas.horizontal-nav nav ul li ul li a {
+#canvas.horizontal-nav nav.mainnav ul li ul li a {
     text-align: left;
     display: block;
     width: 100%;

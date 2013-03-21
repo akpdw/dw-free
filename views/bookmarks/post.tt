@@ -1,0 +1,16 @@
+[%# bookmarks.tt
+
+Renders bookmarks for posting
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+<ol class="dw_bmark_list">
+  [% FOREACH bookmark = bookmarks %]
+  <li>[% dw.scoped_include( "bookmarks/bookmark.tt" ); %]</li>
+  [% END %]
+</ol>

@@ -1,0 +1,41 @@
+
+.create=Create
+
+.comment=Description
+
+.ditemid=Entry ID
+
+.error.entry.invalid=Entry does not exist or is not readable.
+.error.ditemid.invalid=Item ID is required.
+.error.header=Error
+.error.journal.invalid=Journal is required.
+.error.security.invalid=Security value is invalid.
+.error.security.required=Security is required.
+.error.tag.required=At least one tag is required.
+.error.type.invalid=Type must be one of comment, entry, or url.
+.error.type.required=Type is required.
+.error.url.required=URL is required.
+.error.user.invalid=User is invalid.
+
+.journal=Journal Name
+
+.legend=Bookmark Information
+
+.security=Security
+.security.access_list=Access List
+.security.private=Private
+.security.public=Public
+
+.tag=Tag
+
+.talkid=Comment ID
+
+.title=Add Bookmark
+.bookmark.title=Title
+
+.type=Type
+.type.comment=Comment
+.type.entry=Entry
+.type.url=URL
+
+.url=URL

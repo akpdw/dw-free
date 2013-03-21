@@ -100,6 +100,7 @@ my $sth;
 my %table_exists;   # $table -> 1
 my %table_unknown;  # $table -> 1
 my %table_create;   # $table -> $create_sql
+my @table_create_keys;   # $table -> $create_sql (in original key orded)
 my %table_drop;     # $table -> 1
 my %table_status;   # $table -> { SHOW TABLE STATUS ... row }
 my %post_create;    # $table -> [ [ $action, $what ]* ]
@@ -176,7 +177,7 @@ CLUSTER: foreach my $cluster (@clusters) {
     my $run_alter = $table_exists{dbnotes};
 
     ## create tables
-    foreach my $t (keys %table_create)
+    foreach my $t (@table_create_keys)
     {
         next if $table_exists{$t};
         create_table($t);
@@ -817,28 +818,29 @@ sub create_table
     return if $cluster && ! defined $clustered_table{$table};
 
     my $create_sql = $table_create{$table};
-    if ($opt_innodb && $create_sql !~ /engine=myisam/i) {
-        $create_sql .= " ENGINE=INNODB";
-    }
-    do_sql($create_sql);
-
-    foreach my $pc (@{$post_create{$table}})
-    {
-        my @args = @{$pc};
-        my $ac = shift @args;
-        if ($ac eq "sql") {
-            print "# post-create SQL\n";
-            do_sql($args[0]);
+    if ( $create_sql ) {
+        if ($opt_innodb && $create_sql !~ /engine=/i && $create_sql !~ /create view/i) {
+            $create_sql .= " ENGINE=INNODB";
         }
-        elsif ($ac eq "sqltry") {
-            print "# post-create SQL (necessary if upgrading only)\n";
-            try_sql($args[0]);
+        do_sql($create_sql);
+        foreach my $pc (@{$post_create{$table}})
+        {
+            my @args = @{$pc};
+            my $ac = shift @args;
+            if ($ac eq "sql") {
+                print "# post-create SQL\n";
+                do_sql($args[0]);
+            }
+            elsif ($ac eq "sqltry") {
+                print "# post-create SQL (necessary if upgrading only)\n";
+                try_sql($args[0]);
+            }
+            elsif ($ac eq "code") {
+                print "# post-create code\n";
+                $args[0]->($dbh, $opt_sql);
+            }
+            else { print "# don't know how to do \$ac = $ac"; }
         }
-        elsif ($ac eq "code") {
-            print "# post-create code\n";
-            $args[0]->($dbh, $opt_sql);
-        }
-        else { print "# don't know how to do \$ac = $ac"; }
     }
 }
 
@@ -869,6 +871,7 @@ sub register_tablecreate
     return if $cluster && ! defined $clustered_table{$table};
 
     $table_create{$table} = $create;
+    push @table_create_keys, $table;
 }
 
 sub register_tabledrop

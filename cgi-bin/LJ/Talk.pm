@@ -118,8 +118,10 @@ sub link_bar
     ( $u, $up, $remote ) = map { LJ::want_user( $_ ) } ( $u, $up, $remote );
 
     my $mlink = sub {
-        my ($url, $piccode) = @_;
-        return ("<a href=\"$url\">" .
+        my ($url, $piccode, $attrs) = @_;
+        return ("<a href=\"$url\"" .
+                join( " ", map { $_ . "=\"" . $attrs->{$_} . "\"" } ( keys %$attrs ) ) .
+                ">" .
                 LJ::img($piccode, "", { 'align' => 'absmiddle' }) .
                 "</a>");
     };
@@ -142,6 +144,18 @@ sub link_bar
     # memories
     if ( LJ::is_enabled('memories') ) {
         push @linkele, $mlink->("$LJ::SITEROOT/tools/memadd?${jargent}itemid=$itemid", "memadd");
+    }
+
+    # bookmarks
+    if ( LJ::is_enabled('bookmarks') ) {
+        my $subject_enc = LJ::eurl( $entry->subject_raw );
+        push @linkele, $mlink->("$LJ::SITEROOT/bookmarks/new?type=entry&${jargent}ditemid=$itemid&title=" . $subject_enc, "bookmark", {
+                                "data-dwb" => "1",
+                                "data-dwb-type" => "entry",
+                                "data-dwb-journal" => $u->username,
+                                "data-dwb-ditemid" => $itemid,
+                                "data-dwb-subject" => $subject_enc,
+                                });
     }
 
     # edit entry - if we have a remote, and that person can manage

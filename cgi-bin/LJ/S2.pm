@@ -2051,6 +2051,7 @@ sub Entry
 
     my $link_keyseq = $e->{'link_keyseq'};
     push @$link_keyseq, 'mem_add' if LJ::is_enabled('memories');
+    push @$link_keyseq, 'bookmark_add' if LJ::is_enabled('bookmarks');
     push @$link_keyseq, 'tell_friend' if LJ::is_enabled('tellafriend');
     push @$link_keyseq, 'watch_comments' if LJ::is_enabled('esn');
     push @$link_keyseq, 'unwatch_comments' if LJ::is_enabled('esn');
@@ -2424,7 +2425,7 @@ sub Image_std
 
         # additional icons from LJ::Img
         # with alt text from translation system
-        my @ic = qw( btn_del btn_freeze btn_unfreeze btn_scr btn_unscr
+        my @ic = qw( bookmark btn_del btn_freeze btn_unfreeze btn_scr btn_unscr
                      editcomment editentry edittags tellfriend memadd
                      prev_entry next_entry track untrack foaf atom rss );
         foreach ( @ic ) {
@@ -4091,6 +4092,12 @@ sub _Entry__get_link
         return LJ::S2::Link("$LJ::SITEROOT/tools/memadd?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_mem_add"},
                             LJ::S2::Image_std( 'memadd' ) );
+    }
+    if ($key eq "bookmark_add") {
+        return $null_link unless LJ::is_enabled('bookmarks');
+        return LJ::S2::Link("$LJ::SITEROOT/bookmarks/new?journal=$journal&amp;itemid=$this->{'itemid'}",
+                            $ctx->[S2::PROPS]->{"text_boomark_add"},
+                            LJ::S2::Image_std( 'bookmark' ) );
     }
     if ($key eq "nav_prev") {
         return LJ::S2::Link( LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {
