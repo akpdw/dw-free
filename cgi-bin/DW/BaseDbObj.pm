@@ -290,7 +290,7 @@ sub _search_ids {
 
     my $dbr = $class->get_db_reader();
 
-    #warn("running SELECT " . $class->_key_column . " FROM " . $class->_tablename . " " . $where_clause . " values - " . join (",", @values ) );
+    warn("running SELECT " . $class->_key_column . " FROM " . $class->_tablename . " " . $where_clause . " values - " . join (",", @values ) );
     my $ids = $dbr->selectcol_arrayref( "SELECT " . $class->_key_column . " FROM " . $class->_tablename . " " . $where_clause . " " . $class->_default_order_by, undef, @values );
     LJ::throw( $dbr->errstr ) if $dbr->err;
     

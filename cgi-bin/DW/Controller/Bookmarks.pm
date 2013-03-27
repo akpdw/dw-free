@@ -37,6 +37,7 @@ DW::Routing->register_string( "/bookmarks/new", \&new_handler, app => 1, user =>
 DW::Routing->register_string( "/bookmarks/manage", \&manage_handler, user => 1 );
 DW::Routing->register_string( "/bookmarks/post", \&post_handler, app => 1 );
 DW::Routing->register_string( "/bookmarks/autocomplete/tag", \&autocomplete_handler, app => 1, formats => [ 'json' ] );
+DW::Routing->register_string( "/bookmarks/recommend_tags", \&recommend_tags_handler, app => 1, formats => [ 'json' ] );
 
 # views a set of bookmarks, either for a single user, a network, an extended
 # network, or for the site.
@@ -63,7 +64,9 @@ sub view_handler {
             my $search = search_from_querystring( $args->{q} );
             warn("search=$search");
             if ( @$search ) {
-                push @$search, DW::Bookmarks::Accessor->create_searchterm( "userid", "=", $user->userid );
+                my $userterm = DW::Bookmarks::Accessor->create_searchterm( "userid", "=", $user->userid );
+                $userterm->{conjunction} = 'AND';
+                push @$search, $userterm;
 
                 my $ids = DW::Bookmarks::Accessor->_keys_by_search( $search );
                 $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
@@ -314,21 +317,24 @@ sub tag_handler {
 
 # Tries autocomplete
 sub autocomplete_handler {
-    my ( $opts, $tag ) = @_;
+    my ( $opts ) = @_;
 
     warn("running autocomplete handler");
     my $r = DW::Request->get;
     my $args = $r->get_args;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 0 );
 
     return ( $ok, $rv ) unless $ok;
+
+    warn("still running tag handler");
+    my $remote = $rv->{remote};
 
     warn("still running autocomplete handler");
     my $term = $args->{term};
     warn("using term $term");
     my $format = $opts->format;
-    my @results = ( $term . "foo", $term . "bar", $term . "baz" );
+    my @results = DW::Bookmarks::Accessor->match_tags( $remote, $term );
     if ( $format eq 'json' ) {
         warn("requesting json");
         # this prints out the menu navigation as JSON and returns
@@ -338,6 +344,39 @@ sub autocomplete_handler {
         warn("not requesting json, but returning it anyway");
         # this prints out the menu navigation as JSON and returns
         $r->print( JSON::objToJson( \@results ) );
+        return $r->OK;
+    }
+}
+
+# Gives recommended tags for the given bookmark
+sub recommend_tags_handler {
+    my ( $opts ) = @_;
+
+    warn("running recommend handler");
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my ( $ok, $rv ) = controller( anonymous => 0 );
+
+    return ( $ok, $rv ) unless $ok;
+
+    my $remote = $rv->{remote};
+
+    my $url = $args->{url};
+    warn("using url $url");
+    my $format = $opts->format;
+    my $since = time - ( 28 * 24 * 3600 );
+    my $results = DW::Bookmarks::Accessor->popular_tags_for_url( $url, $since );
+    warn("got results " . join (',', @$results ) );
+    if ( $format eq 'json' ) {
+        warn("requesting json");
+        # this prints out the menu navigation as JSON and returns
+        $r->print( JSON::objToJson( { tags => $results } ) );
+        return $r->OK;
+    } else {
+        warn("not requesting json, but returning it anyway");
+        # this prints out the menu navigation as JSON and returns
+        $r->print( JSON::objToJson( { tags => $results } ) );
         return $r->OK;
     }
 }

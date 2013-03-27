@@ -118,12 +118,27 @@
       return false;
     });
 
-
-  $(document).ready(function() {
-      console.log("hi on ready");
-      $("input[type='radio']").click(function() {
-          console.log("clicked!");
-        });
+    $(document).on("blur", "input[name='url']", function(e) {
+	console.log("url blurred");
+	var url = $("input[name='url']").val();
+	console.log("url=" + url);
+	$.ajax( "/bookmarks/recommend_tags.json?url=" + encodeURIComponent(url) )
+	    .done( function( data ) {
+		console.log("got " + data.tags );
+		if ( data.tags ) {
+		    $("#recommendedtags").text("Recommended tags: " + data.tags);
+		    $("#recommendedtags").show();
+		} else {
+		    $("#recommendedtags").show();
+		}
+	    } );
     });
 
+    $(document).ready(function() {
+	console.log("hi on ready");
+	$("input[type='radio']").click(function() {
+            console.log("clicked!");
+        });
+    });
+    
 })(jQuery);

@@ -13,19 +13,20 @@
     <link rel="stylesheet" type="text/css" href="/stc/simple-form.css" />
     <link rel="stylesheet" type="text/css" href="/stc/bookmarks.css" />
     [%#
+
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.core.min.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.widget.min.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.dialog.min.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.menu.min.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.ui.autocomplete.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/stc/jquery/jquery.ui.core.css"/>
     <link rel="stylesheet" type="text/css" href="/stc/jquery/jquery.ui.theme.smoothness.css" />
-
-    <script type="text/javascript" src="/js/jquery/jquery-1.8.3.js"></script>
-    <script type="text/javascript" src="/js/jquery/jquery.ui.widget.js"></script>
-    <script type="text/javascript" src="/js/jquery/jquery.ui.core.js"></script>
-    <script type="text/javascript" src="/js/jquery/jquery.ui.dialog.js"></script>
-    <script type="text/javascript" src="/js/jquery/jquery.ui.menu.js"></script>
-    <script type="text/javascript" src="/js/jquery/jquery.ui.autocomplete.js"></script>
     %]
- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    [%# FIXME these work. ours don't seem to. %]
+ <link rel="stylesheet" href="/stc/jquery/jquery-ui-smoothness-1.10.2.css" />
+    <script type="text/javascript" src="/js/jquery/jquery-1.8.3.js"></script>
+    <script src="/js/jquery/jquery-ui-1.10.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery.bookmark.js"></script>
   </head>
   [%- END -%]

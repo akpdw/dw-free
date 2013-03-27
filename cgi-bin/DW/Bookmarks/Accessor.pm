@@ -514,7 +514,6 @@ sub popular_tags_for_url {
         "    GROUP BY pbk.keyword " .
         "    ORDER BY count DESC " .
         "    LIMIT 5", undef, $url, $since );
-#        "    LIMIT 5", undef, $url );
     LJ::throw( $dbr->errstr ) if $dbr->err;
     
     my @retval = map { $_->[0] } @$tags;
@@ -566,8 +565,8 @@ sub top_tags {
     return \@returnvalue;
 }
 
-# recommends tags for the user
-sub recommend_tags {
+# tries to find matching tags for the user given the substring typed.
+sub match_tags {
     my ( $class, $u, $substring ) = @_;
 
     my $searchstr = $substring . "%";
@@ -600,6 +599,7 @@ sub recommend_tags {
         push @kws, $row;
     }
 
+    return @kws;
 }
 
 # Adds the provided tag(s) to the given set of bookmarks.

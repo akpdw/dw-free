@@ -380,11 +380,11 @@ ok( $all_private, "private search returned private bookmarks only" );
 #my @top_bookmarks = DW::Bookmarks::Accessor->top_bookmarks( 10 );
 #is ( scalar @top_bookmarks, 10, "top bookmarks count is correct." );
 
-# recommend tags
+# match tags
 #my $b_pubentry2 = DW::Bookmarks::Bookmark->create( $u2, { tag_string => 'tag5', title => 'test title', type => 'entry', security => 'public', ditemid => $e_public->ditemid, journal => $e_public->journal->username, des => 'test des again'});
 
 # FIXME
-# my @recs = DW::Bookmarks::Accessor->recommend_tags( $u2, 't' );
+# my @matched = DW::Bookmarks::Accessor->match_tags( $u2, 't' );
 
 
 # visibility

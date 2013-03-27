@@ -16,17 +16,13 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 [%- dw.need_res(
     "stc/simple-form.css",
     "stc/bookmarks.css",
-    "stc/jquery/jquery.ui.core.css",
-    "stc/jquery/jquery.ui.theme.smoothness.css"
+    "stc/jquery/jquery-ui-smoothness-1.10.2.css"
 ) -%]
 
 [%- dw.need_res( { group => "jquery" },
     # jquery ui
     "js/jquery.bookmark.js",
-    "js/jquery/jquery.ui.core.js",
-    "js/jquery/jquery.ui.menu.js",
-    "js/jquery/jquery.ui.widget.js",
-    "js/jquery/jquery.ui.autocomplete.js"
+    "js/jquery/jquery-ui-1.10.2.min.js"
 ) -%]
 
 [% IF error_list %]
@@ -75,7 +71,7 @@ Logged in as [% remote.ljuser_display %]
 [%# end URL/DW Entry section %] 
         <li><label for="title">[% '.bookmark.title' | ml %]</label><input type="text" name="title" value="[% bookmark.title | html %]"/></li>
         <li><label for="comment">[% '.comment' | ml %]</label><textarea name="comment" rows=4 cols=30 width="100%"</textarea>[% bookmark.comment | html %]</textarea></li>
-        <li><label for="tag_string">[% '.tag' | ml %]</label><input type="text" name="tag_string" value="[% bookmark.tag | html %]"/></li>
+        <li><label for="tag_string">[% '.tag' | ml %]</label><input type="text" name="tag_string" value="[% bookmark.tag | html %]"/><div id="recommendedtags" style="display: none;">Recommended tags: </span></li>
         <li>
 	  <fieldset>
 	    <legend>[% '.security' | ml %]</legend> 

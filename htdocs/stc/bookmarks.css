@@ -95,3 +95,8 @@ div.bmark_tags {
     background: white url('/img/ajax-loader.gif') right center no-repeat;
 }
 
+#recommendedtags {
+    clear: both;
+    padding: 0.2em 0.8em 0.2em 0.2em;
+    margin-left: 12em;
+}
