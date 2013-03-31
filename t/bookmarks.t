@@ -14,7 +14,7 @@ use DW::Bookmarks::Accessor;
 use DW::Bookmarks::Bookmark;
 use DW::Bookmarks::Preference;
 
-plan tests => 62;
+plan tests => 65;
 
 # set up users and entries
 
@@ -79,6 +79,16 @@ $bookmark3->{comment} = "This is a new, updated comment.";
 $bookmark3->update();
 my $bookmark3_updated = DW::Bookmarks::Accessor->by_id( $bookmark3->id );
 is( "This is a new, updated comment.", $bookmark3_updated->comment, "Comment update succeeded." );
+
+# update by source object
+my $orig_created = $bookmark3_updated->created;
+$bookmark3_updated->copy_from_object( { comment => "comment 3", created => 0, tag_string => "tag1,tag2,tag19" } );
+$bookmark3_updated->update();
+$bookmark3_updated = DW::Bookmarks::Accessor->by_id( $bookmark3->id );
+is( "comment 3", $bookmark3_updated->comment, "Comment update succeeded via object copy." );
+is( "tag1, tag2, tag19", $bookmark3_updated->tag_string, "Tags update succeeded via object copy." );
+is( $orig_created, $bookmark3_updated->created, "Created correcly not updated by object copy" );
+
 
 # ok, testing some functionality now
 
@@ -248,7 +258,7 @@ is( $all_valid, 1, "all bookmarks returned by by_tag have the correct tag" );
 # tag list test
 my $tag_list = DW::Bookmarks::Accessor->visible_tags_for_user( $u1, $u1 );
 
-is( scalar @$tag_list, 5, "count of all tags for user");
+is( scalar @$tag_list, 6, "count of all tags for user");
 # go through tags and find tag1 and check its usage count
 foreach my $tag ( @$tag_list ) {
     if ( $tag->{tag} eq 'tag1' ) {
@@ -258,7 +268,7 @@ foreach my $tag ( @$tag_list ) {
 
 my $pubtag_list = DW::Bookmarks::Accessor->visible_tags_for_user( $u1, undef );
 
-is( scalar @$pubtag_list, 5, "count of public tags for user");
+is( scalar @$pubtag_list, 6, "count of public tags for user");
 foreach my $tag ( @$pubtag_list ) {
     if ( $tag->{tag} eq 'tag2' ) {
         is( $tag->{tagcount}, 1, "count of public uses of tag2 for user");

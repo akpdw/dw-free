@@ -1,7 +1,11 @@
 <article class="bmark">
+[% IF showedit %]
+<input type="checkbox" id="bmark_select_[% bookmark.id %]" name="bookmark">
+<a href = "[%- bookmark.journal.root | url %]/bookmarks/bookmark/[% bookmark.id %]/edit">Edit</a>
+[% END %]
 <div class="bmark_title"><a href = "[% bookmark.url | url %]">[% bookmark.title %]</a></div>
 <div class="bmark_url"><a href = "[% bookmark.url | url %]">[% bookmark.url %]</a></div>
 <div class="bmark_comment">[% bookmark.comment | html %]</div>
 <div class="bmark_tags">[% FOREACH tag = bookmark.tags %]<a href="/bookmarks/tag/[% tag | html %]">[% tag | html %]</a> [% END %]</div>
-<div class="bmark_metadata"><span class="bmark_user">[% bookmark.user.ljuser_display %]</span> <span class="bmark_date">[% bookmark.last_modified %]</span> </div>
+<div class="bmark_metadata"><span class="bmark_user">[% bookmark.user.ljuser_display %]</span> <span class="bmark_date">[% bookmark.created %]</span> </div>
 </article>

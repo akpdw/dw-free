@@ -34,6 +34,11 @@ sub _key_column {
     return "id";
 }
 
+# Editable properties for the object. Defaults to all; may be overridden.
+sub _editable_obj_props {
+    return $_[0]->_obj_props;
+}
+
 # returns the WHERE clause for searching by ID
 sub _where_by_id {
     return "WHERE " . $_[0]->_key_column . " = ?";
@@ -132,6 +137,7 @@ sub _update {
     # create and run the SQL
     my $qs = join( ', ', map { $_ . "=?" } $self->_obj_props );
     my @values = map { $self->{$_} }  $self->_obj_props;
+    warn ("updating: running UPDATE " . $self->_tablename . " set $qs WHERE " . $self->_key_column . "=? ; values = " . join (',', @values ));
     $dbh->do( "UPDATE " . $self->_tablename . " set $qs WHERE " . $self->_key_column . "=?", undef, @values, $self->id );
     
     LJ::throw($dbh->errstr) if $dbh->err;
@@ -222,6 +228,25 @@ sub _load_objs_from_keys {
     return @returnvalue;
 }
 
+# updates this object's values from the provided object (or hash)
+sub _copy_from_object {
+    my ( $self, $source ) = @_;
+
+    # go through each property available and 
+    foreach my $prop ( $self->_editable_obj_props ) {
+        warn("checking $prop");
+        if ( exists $source->{$prop} ) {
+            warn("setting $prop = " . $source->{$prop});
+            $self->{$prop} = $source->{$prop};
+        }
+    }
+}
+
+# updates this object's values from the provided object (or hash).
+sub copy_from_object {
+    my ( $self, @args ) = @_;
+    $self->_copy_from_object( @args );
+}
 
 # deletes this object.  may be overridden by subclasses
 sub delete {

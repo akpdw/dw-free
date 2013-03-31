@@ -3219,8 +3219,8 @@ CREATE TABLE bookmarks (
        ditemid int(10) unsigned,
        talkid mediumint(8) unsigned,
        comment varchar(1024),
-       created timestamp NOT NULL,
-       last_modified timestamp NOT NULL,
+       created datetime NOT NULL,
+       last_modified datetime NOT NULL,
        PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 EOC

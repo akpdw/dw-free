@@ -1,5 +1,5 @@
 
-.create=Create
+.edit=Save
 
 .error.entry.invalid=Entry does not exist or is not readable.
 .error.ditemid.invalid=Item ID is required.
@@ -15,4 +15,4 @@
 
 .legend=Bookmark Information
 
-.title=Add Bookmark
+.title=Edit Bookmark

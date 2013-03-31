@@ -21,7 +21,14 @@ use warnings;
 use base 'DW::BaseDbObj';
 
 sub _obj_props {
+    # be sure to add to _editable_obj_props below if a new property is 
+    # editable.
     return qw( userid type title security allowmask url comment journalid ditemid talkid last_modified created );
+}
+
+# Editable properties for the object. 
+sub _editable_obj_props {
+    return qw( type title security allowmask url comment journalid ditemid talkid );
 }
 
 sub _obj_keys { "id" }
@@ -56,6 +63,8 @@ sub create {
     
     my %local_opts = %$opts;
     $local_opts{userid} = $u->{userid};
+    $local_opts{created} = LJ::mysql_time();
+    $local_opts{last_modified} = LJ::mysql_time();
 
     my $obj = $class->_create( \%local_opts );
     
@@ -132,6 +141,19 @@ sub validate {
     return 1;
 }
 
+# updates this object's values from the provided object (or hash).
+sub copy_from_object {
+    my ( $self, $source ) = @_;
+
+    $self->_copy_from_object( $source );
+    if ( exists $source->{tags} ) {
+        $self->set_tags( $source->{tags} );
+    } elsif ( exists $source->{tag_string} ) {
+        $self->set_tag_string( $source->{tag_string} );
+    }
+}
+
+
 # creates an entry for the selected bookmarks
 # FIXME
 sub create_entry {
@@ -145,7 +167,7 @@ sub create_entry {
 sub update {
     my ( $self ) = @_;
 
-    $self->{last_modified} = time;
+    $self->{last_modified} = LJ::mysql_time();
     $self->save_tags();
 
     $self->_update();

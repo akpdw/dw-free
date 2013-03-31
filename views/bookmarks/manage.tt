@@ -1,6 +1,6 @@
-[%# bookmarks.tt
+[%# bookmarks/manage.tt
 
-Lists a set of bookmarks and shows an appropriate set of tags along with them.
+Shows a set of bookmarks to be managed.
 
 Authors:
     Allen Petersen <allen@suberic.net>
@@ -10,9 +10,11 @@ under the same terms as Perl itself.  For a copy of the license, please
 reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
+<form method="post" action="/bookmarks/delete">
+
 <section id="bmark_bookmarks">
 <h2>[% IF user %][% user.ljuser_display %]'s [% END %]Bookmarks</h2>
-[% IF editable %]
+
 <nav class="bmark_nav">
   <ul>
     <li><a id="nav_bmarks_all" href = "[%- user.journal_base | url %]/bookmarks">all</a></li>
@@ -23,13 +25,10 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
     <li><a id="nav_bmarks_manage" href = "[%- user.journal_base | url %]/bookmarks/manage">manage</a></li>
   </ul>
 </nav>
-[% END %]
 
-[% IF remote %]
-<div class="bmark_nav">
-    <li><a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a></li>
+<div class="bmark_edit_controller">
+    <!--<a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a> --><button>Post</button> <button>Delete</button>
 </div>
-[% END %]
 
 <ol class="dw_bmark_list">
   [% FOREACH bookmark = bookmarks %]
@@ -37,13 +36,15 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
   [% END %]
 </ol>
 
+</form>
+
 <div class="bmark_pager">
 [% IF page_before %]
-<a href = "/bookmarks?before=[% page_before %]">Previous Page</a>  
+<a href = "/bookmarks/manage?before=[% page_before %]">Previous Page</a>  
 [% END %]
 
 [% IF page_after %]
-<a href = "/bookmarks?after=[% page_after %]">Next Page</a>  
+<a href = "/bookmarks/manage?after=[% page_after %]">Next Page</a>  
 [% END %]
 </div>
 </section>

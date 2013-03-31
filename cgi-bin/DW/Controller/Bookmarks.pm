@@ -32,7 +32,8 @@ DW::Routing->register_string( "/bookmarks/watch", \&watch_handler, user => 1 );
 DW::Routing->register_string( "/bookmarks/network", \&network_handler, user => 1 );
 DW::Routing->register_regex( "^/bookmarks/entry/(\\d+)\$", \&entry_handler, user => 1 );
 DW::Routing->register_regex( "^/bookmarks/tag/([^/]+)\$", \&tag_handler, user => 1, app => 1 );
-DW::Routing->register_regex( "/bookmarks/bookmark/([^/]+)", \&bookmark_handler, user => 1 );
+DW::Routing->register_regex( "/bookmarks/bookmark/([^/]+)\$", \&bookmark_handler, user => 1 );
+DW::Routing->register_regex( "/bookmarks/bookmark/([^/]+)/edit\$", \&edit_bookmark_handler, user => 1 );
 DW::Routing->register_string( "/bookmarks/new", \&new_handler, app => 1, user => 1 );
 DW::Routing->register_string( "/bookmarks/manage", \&manage_handler, user => 1 );
 DW::Routing->register_string( "/bookmarks/post", \&post_handler, app => 1 );
@@ -241,10 +242,95 @@ sub new_handler {
     }
 }
 
-# FIXME not here yet
+# Handles single bookmarks, for viewing or editing
 sub bookmark_handler {
+    my ( $opts, $bmarkid ) = @_;
+
+    warn("running bookmark handler");
     my $r = DW::Request->get;
-    return $r->redirect( "/bookmarks" );
+    warn("still running bookmark handler");
+    if ( $r->did_post ) {
+        warn("did post.");
+        my ( $ok, $rv ) = controller( anonymous => 0 );
+        return ( $ok, $rv ) unless $ok;
+
+        my $args = $r->post_args;
+
+        my $remote = $rv->{remote};
+        my $user = LJ::load_user( $opts->username );
+        my $bookmark = DW::Bookmarks::Accessor->visible_by_id( $user, $bmarkid, $remote );
+        # that bookmark needs to exist and owned by the requested user, and
+        # the logged in user needs to be able to manage the requested user.
+        if ( ! $bookmark || $bookmark->user != $user || ! $remote->can_manage( $user ) ) {
+            # FIXME
+            return $r->redirect( "/bookmarks" );
+        }
+       
+        # ok. let's do the update.
+        $bookmark->copy_from_object( $args );
+        $bookmark->update();
+
+        return $r->redirect( "/bookmarks/bookmark/" . $bookmark->id );
+    } else {
+        warn("didn't do post.");
+        my $args = $r->get_args;
+
+        my ( $ok, $rv ) = controller( anonymous => 1 );
+
+        return ( $ok, $rv ) unless $ok;
+        
+        my $remote = $rv->{remote};
+        my $user = LJ::load_user( $opts->username );
+        warn("running visible_by_id");
+        my $bookmark = DW::Bookmarks::Accessor->visible_by_id( $user, $bmarkid, $remote );
+        # that bookmark needs to exist and owned by the requested user
+        warn("bookmark=$bookmark user = $user");
+        if ( ! $bookmark || $bookmark->user != $user ) {
+            # FIXME
+            return $r->redirect( "/bookmarks" );
+        }
+        
+        my $vars = {
+            remote => $remote,
+            bookmark => $bookmark,
+        };
+        return render_template( 'bookmarks/bookmark.tt', $vars );
+    }
+}
+
+
+sub edit_bookmark_handler {
+    my ( $opts, $bmarkid ) = @_;
+
+    warn("running edit bookmark handler");
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my ( $ok, $rv ) = controller( anonymous => 0 );
+
+    return ( $ok, $rv ) unless $ok;
+
+    # to edit a bookmark, we need to make sure that the remote user 
+    my $remote = $rv->{remote};
+    my $user = LJ::load_user( $opts->username );
+
+    if ( ! $remote->can_manage( $user ) ) {
+        # FIXME
+        return $r->redirect( "/bookmarks" );
+    }
+
+    my $bookmark = DW::Bookmarks::Bookmark->by_id( $bmarkid );
+    # that bookmark needs to exist and owned by the requested user
+    if ( ! $bookmark || $bookmark->user != $user ) {
+        # FIXME
+        return $r->redirect( "/bookmarks" );
+    }
+
+    my $vars = {
+        remote => $remote,
+        bookmark => $bookmark,
+    };
+    return render_template( 'bookmarks/edit.tt', $vars );
 }
 
 # Displays the tags for a particular entry
@@ -412,6 +498,72 @@ sub post_handler {
     #my $text = render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
     #warn("text=$text");
     return $r->redirect( "/update?subject=Bookmarks&event=" . LJ::eurl( $text ) );
+}
+
+# views a set of bookmarks, either for a single user, a network, an extended
+# network, or for the site.
+sub manage_handler {
+    my ( $opts ) = @_;
+
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my ( $ok, $rv ) = controller( anonymous => 0 );
+
+    return ( $ok, $rv ) unless $ok;
+
+    my $remote = $rv->{remote};
+
+    my $user = LJ::load_user( $opts->username );
+    if ( $remote->can_manage( $user )) {
+        # get the requested bookmarks
+        my $after = $args->{after};
+        my $before = $args->{before};
+        my $page;
+        if ( $args->{q} ) {
+            my $search = search_from_querystring( $args->{q} );
+            warn("search=$search");
+            if ( @$search ) {
+                my $userterm = DW::Bookmarks::Accessor->create_searchterm( "userid", "=", $user->userid );
+                $userterm->{conjunction} = 'AND';
+                push @$search, $userterm;
+
+                my $ids = DW::Bookmarks::Accessor->_keys_by_search( $search );
+                $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
+            }
+        }
+
+        unless ( $page ) {
+            warn("no page; using old version.");
+            my $ids = DW::Bookmarks::Accessor->all_ids_for_user( $user );
+            $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
+        }
+
+        # and get the user's tags
+        my $taglist = DW::Bookmarks::Accessor->visible_tags_for_user( $user, $remote );
+        my $vars = {
+            remote => $remote,
+            user => $user,
+            bookmarks => $page->{items},
+            page_before => $page->{page_before},
+            page_after => $page->{page_after},
+            taglist => $taglist,
+            showedit => 1,
+        };
+        return render_template( 'bookmarks/manage.tt', $vars );
+    } else {
+        # FIXME figure out what to return in this case
+        # return the top bookamrks
+        my $bookmarks = DW::Bookmarks::Accessor->popular_bookmarks( 10 );
+        my $taglist = DW::Bookmarks::Accessor->top_tags(25);
+
+        my $vars = {
+            remote => $remote,
+            bookmarks => $bookmarks,
+            taglist => $taglist,
+        };
+        return render_template( 'bookmarks/list.tt', $vars );
+    }
 }
 
 #

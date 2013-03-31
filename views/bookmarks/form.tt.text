@@ -1,0 +1,25 @@
+.comment=Description
+
+.ditemid=Entry ID
+
+.journal=Journal Name
+
+.legend=Bookmark Information
+
+.security=Security
+.security.access_list=Access List
+.security.private=Private
+.security.public=Public
+
+.tag=Tag
+
+.talkid=Comment ID
+
+.bookmark.title=Title
+
+.type=Type
+.type.comment=Comment
+.type.entry=Entry
+.type.url=URL
+
+.url=URL

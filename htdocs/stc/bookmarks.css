@@ -8,6 +8,9 @@ div {
 
 ol.dw_bmark_list {
     list-style-type: none;
+    display: block;
+    float: left;
+    width: 95%;
 }
 ol.dw_bmark_tag_list {
     list-style-type: none;
@@ -23,10 +26,16 @@ article.bmark {
 section#bmark_bookmarks {
     width: 65%;
     float: left;
+    overflow: auto;
+    display: block;
+    clear: left;
 }
 section#bmark_tags {
     width: 30%;
     float: right;
+    overflow: auto;
+    display: block;
+    clear: right;
 }
 
 nav.bmark_nav {
@@ -100,3 +109,23 @@ div.bmark_tags {
     padding: 0.2em 0.8em 0.2em 0.2em;
     margin-left: 12em;
 }
+
+.bmark_edit_controller {
+    float: left;
+    clear: both;
+    display: block:
+    border: 1px solid #000;
+    border-radius: 10px;
+    padding: 1em 1em 1em 1em;
+    width: 80%;
+    overflow: auto;
+}
+
+.bmark_pager {
+    float: left;
+    clear: both;
+    display: block:
+    overflow: auto;
+}
+
+
