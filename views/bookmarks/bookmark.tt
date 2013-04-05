@@ -3,6 +3,9 @@
 <input type="checkbox" id="bmark_select_[% bookmark.id %]" name="bookmark">
 <a href = "[%- bookmark.journal.root | url %]/bookmarks/bookmark/[% bookmark.id %]/edit">Edit</a>
 [% END %]
+[% IF post %]
+<input type="checkbox" id="post_id_[% bookmark.id %]" name="post_id" value="[% bookmark.id %]">
+[% END %]
 <div class="bmark_title"><a href = "[% bookmark.url | url %]">[% bookmark.title %]</a></div>
 <div class="bmark_url"><a href = "[% bookmark.url | url %]">[% bookmark.url %]</a></div>
 <div class="bmark_comment">[% bookmark.comment | html %]</div>

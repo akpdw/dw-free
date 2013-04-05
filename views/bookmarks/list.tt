@@ -25,17 +25,20 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 </nav>
 [% END %]
 
-[% IF remote %]
-<div class="bmark_nav">
-    <li><a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a></li>
-</div>
+[% IF post %]
+<form  method="post" action="/bookmarks/addtopost">
+<input type="hidden" name="source_url" value="[% post_url %]">
+<div class="bmark_edit_controller"><button type="submit">Add to Post</button></div>
 [% END %]
-
 <ol class="dw_bmark_list">
   [% FOREACH bookmark = bookmarks %]
   <li>[% dw.scoped_include( "bookmarks/bookmark.tt" ); %]</li>
   [% END %]
 </ol>
+[% IF post %]
+</form>
+[% END %]
+
 
 <div class="bmark_pager">
 [% IF page_before %]
@@ -48,6 +51,9 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 </div>
 </section>
 
+[% IF post %]
+[% dw.scoped_include( "bookmarks/post_list.tt" ); %]
+[% ELSE %]
 <section id="bmark_tags">
 <h2>[% '.header.tags' | ml %]</h2>
 <ol class="dw_bmark_tag_list">
@@ -55,4 +61,6 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
   <li><a href = "/bookmarks/tag/[% tagmap.tag %]">[% tagmap.tag %]</a> ([% tagmap.tagcount %])</li>
   [% END %]
 </ol>
+[% END %]
+
 </section>

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Bookmarks::Access
+# DW::Bookmarks::Accessor
 #
 # Accessor class for Bookmarks.  This is used to access or modify 
 # individual or groups of Bookmarks.
@@ -321,7 +321,9 @@ sub visible_by_ids {
     # FIXME if you send in a bookmark id that doesn't exist, we should
     # just skip over it, not return an empty bookmark
     my @bookmark_array = $class->_load_objs_from_keys( $ids );
+    warn(" visible by ids: got ". scalar @bookmark_array . " results.");
     my $bookmarks = $class->filter_bookmarks( \@bookmark_array, $remote );
+    warn(" visible by ids: after filter, got " . scalar @$bookmarks . " results.");
 
     return $bookmarks;
 }
@@ -335,11 +337,10 @@ sub filter_bookmarks {
         return $opts->filter( $class, $bookmarks, $remote, $opts );
     }
 
-    #warn ("filtering...");
     my @visible = ();
     foreach my $bookmark ( @$bookmarks ) {
-        #warn ("filtering bookmark");
         if ( $bookmark ) {
+            #warn ("checking if it's visible to $remote.");
             if ( $bookmark->visible_to( $remote ) ) {
                 #warn ("visible.");
                 #warn("tags=" . $bookmark->tags );

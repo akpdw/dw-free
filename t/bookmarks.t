@@ -12,9 +12,10 @@ use LJ::Test qw ( temp_user temp_comm );
 
 use DW::Bookmarks::Accessor;
 use DW::Bookmarks::Bookmark;
+use DW::Bookmarks::Poster;
 use DW::Bookmarks::Preference;
 
-plan tests => 65;
+plan tests => 68;
 
 # set up users and entries
 
@@ -380,9 +381,26 @@ foreach my $page_bmk ( @{$page->{items}} ) {
 }
 ok( $all_private, "private search returned private bookmarks only" );
 
+
 # search for your bookmarks with a specific tag
 # search for friends' bookmarks with a specific tag
 # search for anyone's bookmarks with a specific tag
+
+# checking posting
+
+DW::Bookmarks::Poster->clear( $u1 );
+my @u1_bookmarks = DW::Bookmarks::Accessor->all_for_user( $u1 );
+DW::Bookmarks::Poster->add_bookmarks( $u1, @u1_bookmarks );
+my $current_post = DW::Bookmarks::Poster->current_post( $u1 );
+is( scalar @$current_post,  scalar @u1_bookmarks, "added the right number of bookmarks to post" );
+DW::Bookmarks::Poster->remove_bookmarks( $u1, @u1_bookmarks[0] );
+$current_post = DW::Bookmarks::Poster->current_post( $u1 );
+is( scalar @$current_post , ( scalar @u1_bookmarks ) - 1,  "removing a bookmark removed a bookmark" );
+DW::Bookmarks::Poster->clear( $u1 );
+$current_post = DW::Bookmarks::Poster->current_post( $u1 );
+is( scalar @$current_post, 0, "cleared bookmarks" );
+
+
 
 
 # list top bookmarks
@@ -413,4 +431,5 @@ ok( $all_private, "private search returned private bookmarks only" );
 #top tags
 
 #bookmarks for entries
+
 

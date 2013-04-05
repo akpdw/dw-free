@@ -3332,6 +3332,18 @@ CREATE VIEW public_bookmarks AS
       AND u.statusvis = 'V';
 EOC
 
+register_tablecreate("bookmark_post", <<'EOC');
+CREATE TABLE bookmark_post (
+    userid int(10) unsigned NOT NULL,
+    bookmarkid int(20),
+    PRIMARY KEY ( userid, bookmarkid )
+)
+EOC
+
+post_create("bookmark_post",
+            "sqltry" => "ALTER TABLE bookmark_post
+      ADD INDEX BMARK_POST_USER_IDX(userid);");
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes

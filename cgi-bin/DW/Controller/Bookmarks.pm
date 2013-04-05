@@ -22,6 +22,7 @@ use DW::Routing;
 use DW::Controller;
 use DW::Bookmarks::Accessor;
 use DW::Bookmarks::Bookmark;
+use DW::Bookmarks::Poster;
 
 use JSON;
 
@@ -37,6 +38,9 @@ DW::Routing->register_regex( "/bookmarks/bookmark/([^/]+)/edit\$", \&edit_bookma
 DW::Routing->register_string( "/bookmarks/new", \&new_handler, app => 1, user => 1 );
 DW::Routing->register_string( "/bookmarks/manage", \&manage_handler, user => 1 );
 DW::Routing->register_string( "/bookmarks/post", \&post_handler, app => 1 );
+DW::Routing->register_string( "/bookmarks/post/add", \&add_to_post_handler, app => 1, user => 1 );
+DW::Routing->register_string( "/bookmarks/post/delete", \&remove_from_post_handler, app => 1, user => 1 );
+DW::Routing->register_string( "/bookmarks/post/clear", \&clear_post_handler, app => 1, user => 1 );
 DW::Routing->register_string( "/bookmarks/autocomplete/tag", \&autocomplete_handler, app => 1, formats => [ 'json' ] );
 DW::Routing->register_string( "/bookmarks/recommend_tags", \&recommend_tags_handler, app => 1, formats => [ 'json' ] );
 
@@ -70,6 +74,7 @@ sub view_handler {
                 push @$search, $userterm;
 
                 my $ids = DW::Bookmarks::Accessor->_keys_by_search( $search );
+                warn("ids=$ids");
                 $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
             }
         }
@@ -77,6 +82,7 @@ sub view_handler {
         unless ( $page ) {
             warn("no page; using old version.");
             my $ids = DW::Bookmarks::Accessor->all_ids_for_user( $user );
+            warn("got ids=$ids");
             $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
         }
 
@@ -93,6 +99,15 @@ sub view_handler {
             taglist => $taglist,
             editable => $editable,
         };
+        # handle post settings if there is a logged in user.
+        if ( $remote ) {
+            if ( $args->{post} ) {
+                $vars->{post} = 1;
+                my $postlist = DW::Bookmarks::Poster->current_post( $remote );
+                $vars->{postlist} = $postlist;
+            }
+            $vars->{post_url} = post_url( $r );
+        }
         return render_template( 'bookmarks/list.tt', $vars );
     } else {
         # return the top bookamrks
@@ -472,22 +487,17 @@ sub recommend_tags_handler {
 sub post_handler {
     my ( $opts, $tag ) = @_;
 
+    warn("posting...");
     my $r = DW::Request->get;
-    my $args = $r->get_args;
+    my $args = $r->post_args;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 0 );
 
     return ( $ok, $rv ) unless $ok;
 
     my $remote = $rv->{remote};
 
-    my @ids = $args->get_all( "ids" );
-    warn("ids=@ids");
-    foreach my $id ( @ids ) {
-        warn("id=$id");
-    }
-    
-    my $bookmarks = DW::Bookmarks::Accessor->visible_by_ids( $remote, \@ids );
+    my $bookmarks = DW::Bookmarks::Poster->current_post( $remote );
 
     my $vars = {
         bookmarks => $bookmarks,
@@ -496,10 +506,86 @@ sub post_handler {
     #warn("text=$text");
     #return render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
     #my $text = render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
-    #warn("text=$text");
+    warn("text=$text");
     return $r->redirect( "/update?subject=Bookmarks&event=" . LJ::eurl( $text ) );
 }
 
+# adds bookmarks to the current post in progress
+sub add_to_post_handler {
+    my ( $opts, $tag ) = @_;
+
+    my $r = DW::Request->get;
+    my $args = $r->post_args;
+    
+    my ( $ok, $rv ) = controller( anonymous => 0 );
+    
+    return ( $ok, $rv ) unless $ok;
+    
+    my $remote = $rv->{remote};
+    
+    my @ids = $args->get_all( "post_id" );
+    warn("ids=@ids");
+    
+    my $bookmarks = DW::Bookmarks::Accessor->visible_by_ids( $remote, \@ids );
+    
+    DW::Bookmarks::Poster->add_bookmarks( $remote, @$bookmarks );
+
+    #warn("text=$text");
+    #return render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
+    #my $text = render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
+    #warn("text=$text");
+    return $r->redirect( $args->{ "source_url" } );
+}
+    
+# removes bookmarks to the current post in progress
+sub remove_from_post_handler {
+    my ( $opts, $tag ) = @_;
+
+    my $r = DW::Request->get;
+    my $args = $r->post_args;
+    
+    my ( $ok, $rv ) = controller( anonymous => 0 );
+    
+    return ( $ok, $rv ) unless $ok;
+    
+    my $remote = $rv->{remote};
+    
+    my @ids = $args->get_all( "post_id" );
+    warn("ids=@ids");
+
+    my $bookmarks = DW::Bookmarks::Accessor->visible_by_ids( $remote, \@ids );
+    
+    DW::Bookmarks::Poster->remove_bookmarks( $remote, @$bookmarks );
+
+    #warn("text=$text");
+    #return render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
+    #my $text = render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
+    #warn("text=$text");
+    return $r->redirect( $args->{ "source_url" } );
+}
+
+# clears the current post in progress
+sub clear_post_handler {
+    my ( $opts, $tag ) = @_;
+
+    my $r = DW::Request->get;
+    my $args = $r->post_args;
+    
+    my ( $ok, $rv ) = controller( anonymous => 0 );
+    
+    return ( $ok, $rv ) unless $ok;
+    
+    my $remote = $rv->{remote};
+
+    DW::Bookmarks::Poster->clear( $remote );
+
+    #warn("text=$text");
+    #return render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
+    #my $text = render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
+    #warn("text=$text");
+    return $r->redirect( $args->{ "source_url" } );
+}
+    
 # views a set of bookmarks, either for a single user, a network, an extended
 # network, or for the site.
 sub manage_handler {
@@ -594,6 +680,21 @@ sub search_from_querystring {
     warn("returning " . scalar \@search . " searchterms from querystring.");
     return \@search;
 
+}
+
+# post url
+sub post_url {
+    my ( $r ) = @_;
+
+    my $query_string = $r->query_string;
+    if ( $query_string) {
+        if ( ! $query_string =~ m/post=1/ ) {
+            $query_string .= "&post=1";
+        }
+    } else {
+        $query_string = "post=1";
+    }
+    return "http://" . $r->host . $r->uri . "?" . $query_string;
 }
 
 1;

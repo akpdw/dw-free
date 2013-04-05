@@ -1,0 +1,28 @@
+[%# post_list.tt
+
+Shows the current list of bookmarks to post, along with a form for managing
+the post.
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+<section id="bmark_post">
+<h2>[% '.header.post.selected' | ml %]</h2>
+<form  method="post" action="[% site.root %]/bookmarks/post"><input type="hidden" name="source_url" value="[% post_url %]"><button type="submit">[% '.post' | ml %]</button></form>
+<form  method="post" action="[% site.root %]/bookmarks/post/clear"><input type="hidden" name="source_url" value="[% post_url %]"><button type="submit">[% '.clear' | ml %]</button></form>
+<form  method="post" action="[% site.root %]/bookmarks/post/delete">
+<ol class="bmark_post_selected">
+  [% FOREACH posted_bmark = postlist %]
+  <li><input type="checkbox" name="post_id" value="[% posted_bmark.id %]"> [% posted_bmark.title | html %]</li>
+  [% END %]
+</ol>
+<input type="hidden" name="source_url" value="[% post_url %]">
+<button type="submit">[%- '.remove' | ml %]</button>
+</form>
+
+</section>

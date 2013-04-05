@@ -13,9 +13,9 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
  <nav class="bmark_nav">
   <ul class="bmark_nav">
     [% IF remote %]
-    <li><a href = "[%- remote.journal_base | url %]/bookmarks">[% '.mybookmarks' | ml %]</a></li> 
     <li><a href = "[%- site.root | url %]/bookmarks/new">[% '.add' | ml %]</a></li> 
-    <li><a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a></li>
+    [% IF post_url %]<li><a href = "[% post_url | url %]">[% '.post' | ml %] </a></li>[% END %]
+    <li><a href = "[%- remote.journal_base | url %]/bookmarks">[% '.mybookmarks' | ml %]</a></li> 
     [% END %]
     <li><a href = "[%- site.root | url %]/bookmarks">[% '.popular' | ml %]</a></li>	
     <li><a href = "[%- site.root | url %]/bookmarks/recent">[% '.recent' | ml %]</a></li>
