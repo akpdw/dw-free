@@ -140,5 +140,33 @@
             console.log("clicked!");
         });
     });
+
+    $(document).on("click", "a.bmark-ajax", function(e) {
+	console.log("bookmark click!");
+	e.preventDefault();
+	var href = $(this).attr("href");
+	href = href.match("\\?") ? href + "&ajax=1" : href + "?ajax=1";
+	console.log("href=" + href);
+	$.ajax( href, { dataType: 'json' } )
+	    .done( function( data ) {
+		console.log("got data " + data);
+		console.log("data.success=" + data.success);
+		if ( data.success ) {
+		    console.log("success!");
+		    console.log("data.html=" + data.html);
+		    //$("#bmark_bookmarks").replaceWith(data.html);
+		    animateTo("#bmark_bookmarks", data.html);
+		} else {
+		    console.log("no success?");
+		}
+	    });
+    });
+
+    function animateTo( sourceSelector, newHtml ) {
+	console.log("animating..");
+	$(sourceSelector).fadeOut(300, function() {
+            $(this).replaceWith(newHtml);
+        });
+    }
     
 })(jQuery);

@@ -49,6 +49,7 @@ DW::Routing->register_string( "/bookmarks/recommend_tags", \&recommend_tags_hand
 sub view_handler {
     my ( $opts ) = @_;
 
+    warn("view handler.");
     my $r = DW::Request->get;
     my $args = $r->get_args;
 
@@ -60,10 +61,10 @@ sub view_handler {
     my $user = LJ::load_user( $opts->username );
 
     if ( $user ) {
+        warn("user");
         # get the requested bookmarks
         my $after = $args->{after};
         my $before = $args->{before};
-        warn("page_size = 10");
         my $page;
         if ( $args->{q} ) {
             my $search = search_from_querystring( $args->{q} );
@@ -86,29 +87,44 @@ sub view_handler {
             $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
         }
 
-        # and get the user's tags
-        my $taglist = DW::Bookmarks::Accessor->visible_tags_for_user( $user, $remote );
         my $editable = $remote ? $remote->can_manage( $user ) : 0;
-        warn("editable=$editable ; remote=$remote ; user = $user ");
         my $vars = {
             remote => $remote,
             user => $user,
             bookmarks => $page->{items},
             page_before => $page->{page_before},
             page_after => $page->{page_after},
-            taglist => $taglist,
             editable => $editable,
+            post => ( $remote && $args->{post} ) ? 1 : 0,
+            post_url => post_url( $r ),
         };
-        # handle post settings if there is a logged in user.
-        if ( $remote ) {
-            if ( $args->{post} ) {
-                $vars->{post} = 1;
+        
+        # if this is an ajax request, then just return the subpage.
+        if ( $args->{ajax} ) {
+            my $subpage = DW::Template->template_string( "bookmarks/bookmark_list.tt", $vars, { fragment => 1 } );
+            my $result = {
+                success => 1,
+                html => $subpage,
+            };
+            $r->print( JSON::objToJson( $result ) );
+            return $r->OK;
+        } else {
+            my @bmark_pages = [ "bookmarks/bookmark_list.tt" ];
+
+            # handle post settings if there is a logged in user.
+            if ( $vars->{post} ) {
                 my $postlist = DW::Bookmarks::Poster->current_post( $remote );
                 $vars->{postlist} = $postlist;
+                push @bmark_pages, "bookmarks/post_list.tt";
+            } else {
+                # otherwise show tags
+                my $taglist = DW::Bookmarks::Accessor->visible_tags_for_user( $user, $remote );
+                $vars->{taglist} = $taglist;
+                push @bmark_pages, "bookmarks/tag_list.tt";
             }
-            $vars->{post_url} = post_url( $r );
+            $vars->{bmark_pages} = \@bmark_pages;
+            return render_template_2( $vars );
         }
-        return render_template( 'bookmarks/list.tt', $vars );
     } else {
         # return the top bookamrks
         my $bookmarks = DW::Bookmarks::Accessor->popular_bookmarks( 10 );
@@ -657,6 +673,12 @@ sub render_template {
     my ( $template, $vars ) = @_;
     $vars->{bmark_main_page} = $template;
     return DW::Template->render_template( "bookmarks/page_template.tt", $vars );
+}
+
+#
+sub render_template_2 {
+    my ( $vars ) = @_;
+    return DW::Template->render_template( "bookmarks/page_template_2.tt", $vars );
 }
 
 # creates a search hash from a query string

@@ -15,7 +15,7 @@ use DW::Bookmarks::Bookmark;
 use DW::Bookmarks::Poster;
 use DW::Bookmarks::Preference;
 
-plan tests => 68;
+plan tests => 71;
 
 # set up users and entries
 
@@ -355,11 +355,12 @@ foreach my $page_bmk ( @{$page->{items}} ) {
         $all_public = 0;
     }
 }
+
 ok( $all_public, "public search returned public bookmarks only" );
 
 @search = ( $locked_search, $u1_search );
 my $locked_u1 = DW::Bookmarks::Accessor->_keys_by_search( \@search );
-$page = DW::Bookmarks::Accessor->page_visible_by_remote( $public_u1, $u1, { page_size => 10 } );
+my $page = DW::Bookmarks::Accessor->page_visible_by_remote( $locked_u1, $u1, { page_size => 10 } );
 my $all_locked = 1;
 
 foreach my $page_bmk ( @{$page->{items}} ) {
@@ -380,6 +381,16 @@ foreach my $page_bmk ( @{$page->{items}} ) {
     }
 }
 ok( $all_private, "private search returned private bookmarks only" );
+
+# check to make sure pagination works
+my $all_bmarkids = DW::Bookmarks::Accessor->_search_ids( '' );
+warn(" got " . @$all_bmarkids . " for search.");
+$page = DW::Bookmarks::Accessor->page_visible_by_remote( $all_bmarkids, $u1, { page_size => 10 } );
+is( 10, scalar @{$page->{items}}, "page request for 10 returned 10 results.");
+my $page_two =  DW::Bookmarks::Accessor->page_visible_by_remote( $all_bmarkids, $u1, { page_size => 10, after => $page->{page_after}  } );
+is( 10, scalar @{$page_two->{items}}, "page two request for 10 returned 10 results.");
+my $page_one_again = DW::Bookmarks::Accessor->page_visible_by_remote( $all_bmarkids, $u1, { page_size => 10, before => $page_two->{page_before}  } );
+is( $page->{items}[0]->id, $page_one_again->{items}[0]->id, "page one and reload of page one have matching ids." );
 
 
 # search for your bookmarks with a specific tag

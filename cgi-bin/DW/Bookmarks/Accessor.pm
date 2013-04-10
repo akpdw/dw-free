@@ -98,7 +98,7 @@ sub by_tag_for_user {
     
     my $dbr = $class->get_db_reader( $u );
 
-#    warn("running querySELECT b." . join ( ', b.' , ( $class->_obj_keys, $class->_obj_props ) ) . " FROM " . $class->_tablename . " b, bookmarks_tags bt WHERE b.userid = ? AND b.id = bt.bookmarkid AND bt.kwid = ?, values " . $u->{userid} . ", " . $tagid );
+#    warn("running query SELECT b." . join ( ', b.' , ( $class->_obj_keys, $class->_obj_props ) ) . " FROM " . $class->_tablename . " b, bookmarks_tags bt WHERE b.userid = ? AND b.id = bt.bookmarkid AND bt.kwid = ?, values " . $u->{userid} . ", " . $tagid );
     my $sth = $dbr->prepare( "SELECT b." . join ( ', b.' , ( $class->_obj_keys, $class->_obj_props ) ) . " FROM " . $class->_tablename . " b, bookmarks_tags bt WHERE b.userid = ? AND b.id = bt.bookmarkid AND bt.kwid = ?");
     $sth->execute( $u->{userid}, $tagid );
     LJ::throw( $dbr->errstr ) if $dbr->err;
@@ -205,11 +205,13 @@ sub page_visible_by_remote {
     
     my @bookmark_ids = @$ids;
 
+    #warn("beginning: ids=" . scalar  @bookmark_ids);
     my $page = {};
+    my $forward = $opts->{before} ? 0 : 1;
+    my $last_index = scalar @bookmark_ids - 1;
 
     if ( $opts ) {
         my $page_size = ( $opts->{'page_size'} ?  $opts->{'page_size'}+0 : 25 );
-        warn("page_size in accessor=" . $page_size);
         my $pivot = $opts->{after} || $opts->{before} || 0;
         my $index = 0;
         if ( $pivot ) {
@@ -217,45 +219,84 @@ sub page_visible_by_remote {
             my $found = 0;
             foreach my $id ( @bookmark_ids ) {
                 if ( $id == $pivot ) {
-                    #warn("found pivot!");
+                    warn("found pivot! -- index = $index");
                     $found = 1;
-                    # break; FIXME
+                    last;
                 } else {
-                    if ( ! $found ) {
-                        $index++;
-                    }
+                    $index++;
                 }
             }
-            # if we don't find the requested id, show the first page
+            # if we don't find the requested id, show the first page and 
+            # pretend we're going forward
             if ( ! $found ) {
                 $index = 0;
+                $forward = 1;
             }
         }
         
-        my $start_index;
-        if ( $opts->{after} ) {
+        my ( $start_index, $end_index );
+        if ( $opts->{before} ) {
+            # if we've requested something that goes before the beginning of
+            # the series, just treat it as if we're doing a normal page
+            if ( $index - $page_size < 0 ) {
+                $start_index = 0;
+                $forward = 1;
+                $end_index = $page_size - 1 > $last_index ?  $last_index : $page_size - 1;
+            } else {
+                $start_index = $index - $page_size;
+                $end_index = $index - 1;
+            }
+        } elsif ( $opts->{after} ) {
             $start_index = $index + 1;
-        } elsif ( $opts->{before} ) {
-            $start_index = $index - 1;
+            $end_index = $index + $page_size - 1 > $last_index ?  $last_index : $index + $page_size - 1;
         } else {
             $start_index = 0;
+            $end_index = $page_size - 1 > $last_index ? $last_index : $page_size - 1;
         }
 
         my $page_before = 0;
         my $page_after = 0;
         
-        if ( $start_index > 0 ) {
-            splice( @bookmark_ids, 0, $start_index );
-            $page_before = $bookmark_ids[0];
-        }
-        if ( scalar @bookmark_ids > $page_size ) {
-            splice( @bookmark_ids, $page_size );
-            $page_after = $bookmark_ids[ scalar @bookmark_ids - 1];
+        my @cur_ids = @bookmark_ids[$start_index..$end_index];
+        
+        my $items = $class->visible_by_ids( $remote, \@cur_ids );
+
+        # now if visible_by_ids has filtered some out, we need to
+        # fill those in. fill in previous first if we're doing a 
+        # before query
+        while ( (! $forward ) && scalar @$items < $page_size && $start_index > 0 ) {
+            if ( $start_index == 0 ) {
+                $forward = 1;
+            } else {
+                my $missing =  $page_size - scalar @$items;
+                my $new_end = $start_index - 1;
+                $start_index = $start_index - $missing < 0 ? 0 : $start_index - $missing;
+                my @new_ids = @bookmark_ids[$start_index..$new_end];
+                my $new_items = $class->visible_by_ids( $remote, \@new_ids );
+                unshift @$items, @$new_items;
+            }
         }
         
-        my @items = $class->_load_objs_from_keys( \@bookmark_ids );
+        # and add to the end if appropriate
+        while ( scalar @$items < $page_size && $end_index < $last_index ) {
+            my $missing =  $page_size - scalar @$items;
+            my $new_start = $end_index + 1;
+            $end_index = $end_index + $missing <= $last_index ? $end_index + $missing : $last_index; 
+            my @new_ids = @bookmark_ids[$new_start..$end_index];
+            my $new_items = $class->visible_by_ids( $remote, \@new_ids );
+            push @$items, @$new_items;
+        }
+
+        # get the start and end as appropriate
+        if ( $start_index > 0 ) {
+            $page_before = $bookmark_ids[$start_index];
+        }
+        if ( $last_index > $end_index ) {
+            $page_after = $bookmark_ids[$end_index];
+        }
+
         $page = {
-            items => \@items,
+            items => $items,
             page_before => $page_before,
             page_after => $page_after,
         };
@@ -317,13 +358,14 @@ sub visible_by_id {
 # returns (readable) bookmarks by id
 sub visible_by_ids {
     my ( $class, $remote, $ids ) = @_;
-    
+
+    #warn("running visible_by_ids against ids " . join(',', @$ids ));
     # FIXME if you send in a bookmark id that doesn't exist, we should
     # just skip over it, not return an empty bookmark
     my @bookmark_array = $class->_load_objs_from_keys( $ids );
-    warn(" visible by ids: got ". scalar @bookmark_array . " results.");
+    #warn(" visible by ids: got ". scalar @bookmark_array . " results.");
     my $bookmarks = $class->filter_bookmarks( \@bookmark_array, $remote );
-    warn(" visible by ids: after filter, got " . scalar @$bookmarks . " results.");
+    #warn(" visible by ids: after filter, got " . scalar @$bookmarks . " results.");
 
     return $bookmarks;
 }
@@ -342,7 +384,7 @@ sub filter_bookmarks {
         if ( $bookmark ) {
             #warn ("checking if it's visible to $remote.");
             if ( $bookmark->visible_to( $remote ) ) {
-                #warn ("visible.");
+                #warn ("visible; security=" . $bookmark->security);
                 #warn("tags=" . $bookmark->tags );
                 $bookmark->filter_tags( $remote );
                 #warn ("tags filtered.");

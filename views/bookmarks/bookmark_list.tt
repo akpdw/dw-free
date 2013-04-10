@@ -1,6 +1,6 @@
-[%# bookmarks.tt
+[%# bookmarks/bookmark_list.tt
 
-Lists a set of bookmarks and shows an appropriate set of tags along with them.
+Lists the included bookmarks.
 
 Authors:
     Allen Petersen <allen@suberic.net>
@@ -42,25 +42,12 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 <div class="bmark_pager">
 [% IF page_before %]
-<a class="bmark" href = "/bookmarks?before=[% page_before %]">Previous Page</a>  
+<a class="bmark-ajax" href = "/bookmarks?before=[% page_before %]">Previous Page</a>  
 [% END %]
 
 [% IF page_after %]
-<a class="bmark" href = "/bookmarks?after=[% page_after %]">Next Page</a>  
+<a class="bmark-ajax" href = "/bookmarks?after=[% page_after %]">Next Page</a>  
 [% END %]
 </div>
 </section>
 
-[% IF post %]
-[% dw.scoped_include( "bookmarks/post_list.tt" ); %]
-[% ELSE %]
-<section id="bmark_tags">
-<h2>[% '.header.tags' | ml %]</h2>
-<ol class="dw_bmark_tag_list">
-  [% FOREACH tagmap = taglist %]
-  <li><a href = "/bookmarks/tag/[% tagmap.tag %]">[% tagmap.tag %]</a> ([% tagmap.tagcount %])</li>
-  [% END %]
-</ol>
-[% END %]
-
-</section>

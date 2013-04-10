@@ -137,7 +137,7 @@ sub _update {
     # create and run the SQL
     my $qs = join( ', ', map { $_ . "=?" } $self->_obj_props );
     my @values = map { $self->{$_} }  $self->_obj_props;
-    warn ("updating: running UPDATE " . $self->_tablename . " set $qs WHERE " . $self->_key_column . "=? ; values = " . join (',', @values ));
+    #warn ("updating: running UPDATE " . $self->_tablename . " set $qs WHERE " . $self->_key_column . "=? ; values = " . join (',', @values ));
     $dbh->do( "UPDATE " . $self->_tablename . " set $qs WHERE " . $self->_key_column . "=?", undef, @values, $self->id );
     
     LJ::throw($dbh->errstr) if $dbh->err;
@@ -319,7 +319,7 @@ sub _search_ids {
     my $ids = $dbr->selectcol_arrayref( "SELECT " . $class->_key_column . " FROM " . $class->_tablename . " " . $where_clause . " " . $class->_default_order_by, undef, @values );
     LJ::throw( $dbr->errstr ) if $dbr->err;
     
-    #warn("for search_ids, got $ids - scalar " . scalar @$ids . "; values " . join(",", @$ids ) );
+    warn("for search_ids, got $ids - scalar " . scalar @$ids . "; values " . join(",", @$ids ) );
     return $ids;
 }
 
@@ -376,7 +376,7 @@ sub _keys_by_value {
 sub _keys_by_search {
     my ( $class, $search ) = @_;
 
-    #warn("running _keys_by_search");
+    warn("running _keys_by_search");
     my $ids;
     # see if we can get it from memcache
     my @objs;
@@ -393,7 +393,7 @@ sub _keys_by_search {
 
     # if we didn't get anything from memcache, try the database
 
-    #warn("checking db");
+    warn("checking db");
     my $where_clause = "WHERE ";
     my @values = ();
     foreach my $searchterm ( @$search ) {
@@ -407,10 +407,10 @@ sub _keys_by_search {
         } elsif ( $searchterm->{value} ) {
             push @values, $searchterm->{value};
         }
-        #warn("whereclause = " . $where_clause);
+        warn("whereclause = " . $where_clause);
     }
     $ids = $class->_search_ids( $where_clause, @values );
-    #warn("searched ids; got $ids - " . join(",", @$ids ));
+    warn("searched ids; got $ids - " . join(",", @$ids ));
     
     #if ( $class->memcache_query_enabled ) {
     #    $class->_store_keys( $field, $value, $ids );
