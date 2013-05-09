@@ -205,7 +205,7 @@ sub page_visible_by_remote {
     
     my @bookmark_ids = @$ids;
 
-    #warn("beginning: ids=" . scalar  @bookmark_ids);
+    #warn("two beginning: ids=" . scalar  @bookmark_ids);
     my $page = {};
     my $forward = $opts->{before} ? 0 : 1;
     my $last_index = scalar @bookmark_ids - 1;
@@ -259,8 +259,10 @@ sub page_visible_by_remote {
         
         my @cur_ids = @bookmark_ids[$start_index..$end_index];
         
+        #warn("cur_ids size = " . scalar @cur_ids);
         my $items = $class->visible_by_ids( $remote, \@cur_ids );
 
+        #warn("visible by ids returns " . scalar @$items);
         # now if visible_by_ids has filtered some out, we need to
         # fill those in. fill in previous first if we're doing a 
         # before query
@@ -363,9 +365,9 @@ sub visible_by_ids {
     # FIXME if you send in a bookmark id that doesn't exist, we should
     # just skip over it, not return an empty bookmark
     my @bookmark_array = $class->_load_objs_from_keys( $ids );
-    #warn(" visible by ids: got ". scalar @bookmark_array . " results.");
+    #warn("visible by ids: got ". scalar @bookmark_array . " results.");
     my $bookmarks = $class->filter_bookmarks( \@bookmark_array, $remote );
-    #warn(" visible by ids: after filter, got " . scalar @$bookmarks . " results.");
+    #warn("visible by ids: after filter, got " . scalar @$bookmarks . " results.");
 
     return $bookmarks;
 }
@@ -382,14 +384,22 @@ sub filter_bookmarks {
     my @visible = ();
     foreach my $bookmark ( @$bookmarks ) {
         if ( $bookmark ) {
-            #warn ("checking if it's visible to $remote.");
+            #warn ("checking if " . $bookmark->id . " is visible to $remote.");
             if ( $bookmark->visible_to( $remote ) ) {
                 #warn ("visible; security=" . $bookmark->security);
-                #warn("tags=" . $bookmark->tags );
-                $bookmark->filter_tags( $remote );
-                #warn ("tags filtered.");
+                # if the entry has tags, then check to see if any of them
+                # are visible. 
                 if ( $bookmark->tags ) {
-                    #warn ("tags set; pushing to visible.");
+                    #warn("tags=" . $bookmark->tags );
+                    $bookmark->filter_tags( $remote );
+                    #warn ("tags filtered.");
+                    if ( $bookmark->tags ) {
+                        #warn ("tags set; pushing to visible.");
+                        push @visible, $bookmark;
+                    }
+                } else {
+                    # if it's untagged and has passed all the other checks,
+                    # then show it.
                     push @visible, $bookmark;
                 }
             }
@@ -436,9 +446,9 @@ sub popular_bookmarks {
 
     #warn("checking popular bookmarks");
     my $results;
-    #if ( $class->memcache_query_enabled ) {
-    #    $results = $class->_load_keys( "top", 1 );
-    #}
+    if ( $class->memcache_query_enabled ) {
+        $results = $class->_load_keys( "top", 1 );
+    }
     unless ($results && ref $results eq 'ARRAY' && scalar @$results > 1 ) {
         my $dbr = $class->get_db_reader();
 
@@ -469,9 +479,9 @@ sub popular_bookmarks {
         $results = \@temp;
 
         # FIXME ?? get entry/comments, too ??
-        #if ( $class->memcache_query_enabled ) {
-        #    $class->_store_keys( "top", 1, $results );
-        #}
+        if ( $class->memcache_query_enabled ) {
+            $class->_store_keys( "top", 1, $results );
+        }
     }
     return $results;
 }
@@ -482,9 +492,9 @@ sub recent_bookmarks {
 
     warn("checking recent bookmarks");
     my $results;
-    #if ( $class->memcache_query_enabled ) {
-    #    $results = $class->_load_keys( "recent", 1 );
-    #}
+    if ( $class->memcache_query_enabled ) {
+        $results = $class->_load_keys( "recent", 1 );
+    }
     unless ($results && ref $results eq 'ARRAY' && scalar @$results > 1 ) {
         my $dbr = $class->get_db_reader();
         
@@ -501,9 +511,9 @@ sub recent_bookmarks {
         $results = \@items;
         
         # FIXME ?? get entry/comments, too ??
-        #if ( $class->memcache_query_enabled ) {
-        #    $class->_store_keys( "recent", 1, $results );
-        #}
+        if ( $class->memcache_query_enabled ) {
+            $class->_store_keys( "recent", 1, $results );
+        }
     }
     return $results;
 }
@@ -531,11 +541,11 @@ sub recent_tags {
 
     my @kws;
     while ( my $row = $sth->fetchrow_hashref ) {
-        warn("adding " . $row->{tag} . ", " . $row->{tagcount});
+        #warn("adding " . $row->{tag} . ", " . $row->{tagcount});
         push @kws, $row;
     }
 
-    warn("kws = " . @kws);
+    #warn("kws = " . @kws);
     return \@kws;
 }
 
@@ -591,7 +601,7 @@ sub popular_title_for_url {
 sub top_tags {
     my ( $class, $count ) = @_;
 
-    warn("checking top tags");
+    #warn("checking top tags");
     my $dbr = $class->get_db_reader();
 
     my $sth = $dbr->prepare( "SELECT DISTINCT(keyword) AS tag, COUNT(bookmarkid) AS tagcount FROM public_bookmark_kws GROUP BY keyword ORDER BY tagcount DESC, keyword ASC LIMIT ?" );
@@ -601,7 +611,7 @@ sub top_tags {
 
     my @returnvalue;
     while ( my $row = $sth->fetchrow_hashref ) {
-        warn("adding " . $row->{keyword} . " to tags");
+        #warn("adding " . $row->{keyword} . " to tags");
         push @returnvalue, $row;
     }
 
@@ -786,7 +796,7 @@ sub create_searchterm {
     my ( $class, $key, $comparator, @values ) = @_;
 
     if ( $key eq 'untagged' ) {
-        warn("checking untagged term");
+        #warn("checking untagged term");
         my $term = {
             whereclause => 'not exists (select * from bookmarks_tags bt where bt.bookmarkid = bookmarks.id)',
         }; 

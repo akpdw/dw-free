@@ -1,0 +1,4 @@
+[% IF bookmark.type == 'entry' %][% bookmark.journal.ljuser_display %] - <a href = "[% bookmark.url %]">[% IF bookmark.entry.subject_html %][% bookmark.entry.subject_html %][% ELSE %][% '.nosubject' | ml %][% END %]</a>[% END %]
+[% IF bookmark.type == 'url' %]<a href = "[% bookmark.url %]">[% bookmark.url | html %]</a>[% END %]
+[% IF bookmark.type == 'comment' %]fixme comment on [% bookmark.journal.ljuser_display %] - <a href = "[% bookmark.url %]">[% bookmark.entry.subject | html %]</a>[% END %]
+ 

@@ -2353,6 +2353,11 @@ property string text_edit_entry { des = "Text to edit an entry"; }
 
 property string text_edit_tags { des = "Text to edit tags for an entry"; }
 
+property string text_bookmark_add {
+    des = "Text to add an entry into bookmarks";
+    example = "\"Add Bookmark\" or \"Bookmark\"";
+}
+
 property string text_mem_add {
     des = "Text to add an entry into memories";
     example = "\"Add Memory\" or \"Memory\"";
@@ -2366,6 +2371,7 @@ property string text_watch_comments { des = "Text to track events on an entry"; 
 
 property string text_unwatch_comments { des = "Text to stop tracking events on an entry"; }
 
+set text_bookmark_add = "Add Bookmark";
 set text_entry_prev = "Previous Entry";
 set text_entry_next = "Next Entry";
 set text_edit_entry = "Edit Entry";

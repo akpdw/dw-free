@@ -1,8 +1,12 @@
+.bookmark=Bookmark
+
+.change=Change
+
 .comment=Description
 
 .ditemid=Entry ID
 
-.journal=Journal Name
+.journalname=Journal Name
 
 .legend=Bookmark Information
 

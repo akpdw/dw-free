@@ -4095,9 +4095,20 @@ sub _Entry__get_link
     }
     if ($key eq "bookmark_add") {
         return $null_link unless LJ::is_enabled('bookmarks');
-        return LJ::S2::Link("$LJ::SITEROOT/bookmarks/new?journal=$journal&amp;itemid=$this->{'itemid'}",
-                            $ctx->[S2::PROPS]->{"text_boomark_add"},
-                            LJ::S2::Image_std( 'bookmark' ) );
+
+        # FIXME i think we can get this value more easily...
+        my $subj = $this->{'subject'};
+        LJ::CleanHTML::clean_subject_all(\$subj);
+        my $encsubj = LJ::eurl( $subj );
+        return LJ::S2::Link("$LJ::SITEROOT/bookmarks/new?type=entry&journalname=$journal&amp;ditemid=$this->{'itemid'}&title=$encsubj",
+                            $ctx->[S2::PROPS]->{"text_bookmark_add"},
+                            LJ::S2::Image_std( 'bookmark' ), 
+                                "data-dwb" => "1",
+                                "data-dwb-type" => "entry",
+                                "data-dwb-journal" => $journal,
+                                "data-dwb-ditemid" => $this->{itemid},
+                                "data-dwb-subject" => $subj,
+                            );
     }
     if ($key eq "nav_prev") {
         return LJ::S2::Link( LJ::create_url( "/go", host => $LJ::DOMAIN_WEB, viewing_style => 1, args => {

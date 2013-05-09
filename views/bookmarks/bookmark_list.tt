@@ -15,18 +15,18 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 [% IF editable %]
 <nav class="bmark_nav">
   <ul>
-    <li><a id="nav_bmarks_all" href = "[%- user.journal_base | url %]/bookmarks">all</a></li>
-    <li><a id="nav_bmarks_private" href = "[%- user.journal_base | url %]/bookmarks?q=security:private">private</a></li>
-    <li><a id="nav_bmarks_locked" href = "[%- user.journal_base | url %]/bookmarks?q=security:locked">locked</a></li>
-    <li><a id="nav_bmarks_public" href = "[%- user.journal_base | url %]/bookmarks?q=security:public">public</a></li>
-    <li><a id="nav_bmarks_untagged" href = "[%- user.journal_base | url %]/bookmarks?q=untagged">untagged</a></li>
-    <li><a id="nav_bmarks_manage" href = "[%- user.journal_base | url %]/bookmarks/manage">manage</a></li>
+    <li><a class="bmark-ajax" id="nav_bmarks_all" href = "[%- user.journal_base | url %]/bookmarks">all</a></li>
+    <li><a class="bmark-ajax" id="nav_bmarks_private" href = "[%- user.journal_base | url %]/bookmarks?q=security:private">private</a></li>
+    <li><a class="bmark-ajax" id="nav_bmarks_locked" href = "[%- user.journal_base | url %]/bookmarks?q=security:locked">locked</a></li>
+    <li><a class="bmark-ajax" id="nav_bmarks_public" href = "[%- user.journal_base | url %]/bookmarks?q=security:public">public</a></li>
+    <li><a class="bmark-ajax" id="nav_bmarks_untagged" href = "[%- user.journal_base | url %]/bookmarks?q=untagged">untagged</a></li>
+    <li><a class="bmark-ajax" id="nav_bmarks_manage" href = "[%- user.journal_base | url %]/bookmarks/manage">manage</a></li>
   </ul>
 </nav>
 [% END %]
 
 [% IF post %]
-<form  method="post" action="/bookmarks/addtopost">
+<form  method="post" action="/bookmarks/post/add">
 <input type="hidden" name="source_url" value="[% post_url %]">
 <div class="bmark_edit_controller"><button type="submit">Add to Post</button></div>
 [% END %]

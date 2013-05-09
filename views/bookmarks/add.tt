@@ -21,7 +21,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 [%- dw.need_res( { group => "jquery" },
     # jquery ui
-    "js/jquery.bookmark.js",
+    "js/jquery.bookmark.add.js",
     "js/jquery/jquery-ui-1.10.2.min.js"
 ) -%]
 
@@ -40,7 +40,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 Logged in as [% remote.ljuser_display %]
 
 <div class="simple-form bmark-form"> 
-  <form method="post" action="/bookmarks/new">
+  <form method="post" action="/bookmarks/new" id="bmark-add-form">
     [% dw.form_auth %]
     [% dw.scoped_include( "bookmarks/form.tt" ); %]
     <fieldset class="submit">
@@ -50,5 +50,5 @@ Logged in as [% remote.ljuser_display %]
 </div>
 
 <div>
-  <a href = "javascript:q=location.href;if(document.getSelection){d=document.getSelection();}else{d='';};p=document.title;void(open('http://www.akpdw.net/bookmarks/new?fragment=1&bookmarklet=1&url='+encodeURIComponent(q)+'&comment='+encodeURIComponent(d)+'&title='+encodeURIComponent(p),'Dreamwidth','toolbar=no,width=600,height=400'));">DW Bookmark</a>
+  <a href = "javascript:q=location.href;if(document.getSelection){d=document.getSelection();}else{d='';};p=document.title;void(open('[% site.root %]/bookmarks/new?fragment=1&bookmarklet=1&url='+encodeURIComponent(q)+'&comment='+encodeURIComponent(d)+'&title='+encodeURIComponent(p),'Dreamwidth','toolbar=no,width=600,height=400'));">DW Bookmark</a>
 </div>

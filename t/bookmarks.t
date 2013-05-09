@@ -105,7 +105,7 @@ my $b_pub = DW::Bookmarks::Bookmark->create( $u1, { tag_string => 'tag1', title 
 is( $b_pub->visible_to( $u2 ), 1, "public visible" );
 
 
-my $b_pubentry = DW::Bookmarks::Bookmark->create( $u1, { tag_string => 'tag1', title => 'test title', type => 'entry', security => 'public',ditemid => $e_public->ditemid, journal => $e_public->journal->username, des => 'test des'});
+my $b_pubentry = DW::Bookmarks::Bookmark->create( $u1, { tag_string => 'tag1', title => 'test title', type => 'entry', security => 'public',ditemid => $e_public->ditemid, journalname => $e_public->journal->username, des => 'test des'});
 is( $b_pubentry->url, $e_public->url, "entry url matches" );
 is( $b_pubentry->visible_to( $u2 ), 1, "entry visible" );
 
@@ -217,7 +217,7 @@ is( scalar DW::Bookmarks::Accessor->visible_by_user( $u1, $u1 ), 6, "visible_by_
 is( DW::Bookmarks::Accessor->visible_by_user( $u1, $u2 ), 4, "visible_by_user count, other" );
 
 # by entry
-my $b_pubentry2 = DW::Bookmarks::Bookmark->create( $u2, { tag_string => 'tag5', title => 'test title', type => 'entry', security => 'public', ditemid => $e_public->ditemid, journal => $e_public->journal->username, des => 'test des again'});
+my $b_pubentry2 = DW::Bookmarks::Bookmark->create( $u2, { tag_string => 'tag5', title => 'test title', type => 'entry', security => 'public', ditemid => $e_public->ditemid, journalname => $e_public->journal->username, des => 'test des again'});
 
 my @for_epublic = DW::Bookmarks::Accessor->visible_by_entry( $e_public, $u1 );
 is ( scalar @for_epublic, 3, "visible for entry count" );
@@ -295,7 +295,7 @@ foreach my $popentry ( @$popular ) {
 ok( $inorder, "Popular bookmarks returned in order" );
 
 # add tags
-DW::Bookmarks::Bookmark->create( $u1, { tag_string => 'tag5', title => 'test title', type => 'entry', security => 'public', ditemid => $e_public->ditemid, journal => $e_public->journal->username, des => 'test des again'});
+DW::Bookmarks::Bookmark->create( $u1, { tag_string => 'tag5', title => 'test title', type => 'entry', security => 'public', ditemid => $e_public->ditemid, journalname => $e_public->journal->username, des => 'test des again'});
 DW::Bookmarks::Bookmark->create( $u1, { tag_string => 'tag5', title => 'test title', type => 'url', security => 'public', url => 'http://www.dreamwidth.org/', des => 'test des again'});
 DW::Bookmarks::Bookmark->create( $u1, { tag_string => 'tag6', title => 'test title', type => 'url', security => 'public', url => 'http://www.dreamwidth.org/index.html', des => 'test des again'});
 

@@ -27,7 +27,7 @@
  <link rel="stylesheet" href="/stc/jquery/jquery-ui-smoothness-1.10.2.css" />
     <script type="text/javascript" src="/js/jquery/jquery-1.8.3.js"></script>
     <script src="/js/jquery/jquery-ui-1.10.2.min.js"></script>
-    <script type="text/javascript" src="/js/jquery.bookmark.js"></script>
+    <script type="text/javascript" src="/js/jquery.bookmark.add.js"></script>
   </head>
   [%- END -%]
   
@@ -35,7 +35,9 @@
   <body class="bookmarklet">
     [%# FIXME get via properties %]
     <h1>New Bookmark</h1>
+  <div id="content">
   [% dw.scoped_include( "bookmarks/add.tt" ); %]
+  </div>
   </body>
   [%- END -%]
 <html>

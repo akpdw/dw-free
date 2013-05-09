@@ -95,10 +95,10 @@ sub validate {
         # entry check
         if ( $opts->{type} eq 'entry' || $opts->{type} eq 'comment' ) {
             $errors->{ditemid} = "ditemid.required" unless  $opts->{ditemid};
-            # allow either journal or journalid
+            # allow either journalname or journalid
             if ( ! $opts->{journalid} ) {
-                if ( $opts->{journal} ) {
-                    my $j = eval { LJ::load_user( $opts->{journal} ); };
+                if ( $opts->{journalname} ) {
+                    my $j = eval { LJ::load_user( $opts->{journalname} ); };
                     if ( $j ) {
                         $opts->{journalid} = $j->id;
                     }
@@ -106,7 +106,7 @@ sub validate {
             }
             if ( ! $opts->{journalid} ) {
                 $errors->{journalid} = "journal.required";
-                $errors->{journal} = "journal.required";
+                $errors->{journalname} = "journal.required";
             }
             
             if ( $opts->{ditemid} && $opts->{journalid} ) {
@@ -136,6 +136,48 @@ sub validate {
         #    warn("error $key=" . $errors->{$key} );
         #}
         LJ::throw( $errors );
+    }
+
+    return 1;
+}
+
+# returns if the link for this bookmark is valid
+sub link_is_valid {
+    my ( $self, $remote ) = @_;
+    
+    return 0 unless $self->{type};
+    return 0 unless ( $self->{type} eq 'url' ||  $self->{type} eq 'entry' ||  $self->{type} eq 'comment' );
+    
+    # entry check
+    if ( $self->{type} eq 'entry' || $self->{type} eq 'comment' ) {
+        return 0 unless  $self->{ditemid};
+        # allow either journalname or journalid
+        if ( ! $self->{journalid} ) {
+            if ( $self->{journalname} ) {
+                my $j = eval { LJ::load_user( $self->{journalname} ); };
+                if ( $j ) {
+                    $self->{journal} = $j;
+                }
+            }
+            if ( $self->journal ) {
+                $self->{journalid} = $self->journal->id;
+            }
+        }
+        if ( ! $self->journalid ) {
+            return 0;
+        }
+        
+        if ( $self->{ditemid} && $self->{journalid} ) {
+            my $journal = eval { LJ::want_user( $self->{journalid} ); };
+            
+            my $entry = LJ::Entry->new( $journal, ditemid => $self->{ditemid} );
+            return 0 unless ( $entry && $entry->visible_to( $remote ) );
+        }
+    }
+    
+    # url check
+    if ( $self->{type} eq 'url' ) {
+        return 0 unless  $self->{url};
     }
 
     return 1;
@@ -260,6 +302,17 @@ sub entry {
 # bookmark)
 sub journalid {
     return $_[0]->{'journalid'};
+}
+
+# returns the journalname of this bookmark (if this is an entry or comment 
+# bookmark)
+sub journalname {
+    my $self = $_[0];
+
+    if ( $self->journal ) {
+        return $self->journal->name_raw;
+    }
+    return $self->{journalname};
 }
 
 # returns the journal of this bookmark (if this is an entry or comment 
@@ -400,8 +453,11 @@ sub created {
 sub visible_to {
     my ( $self, $remote ) = @_;
 
+    #warn ("checking visible_to against " . $self->id);
     return 0 unless $self->user;
     
+    #warn ("user is set.");
+
     # this is basically taken from Entry.pm
     my ($viewall, $viewsome) = (0, 0);
     if ( LJ::isu( $remote ) ) {
@@ -430,6 +486,7 @@ sub visible_to {
         return 0 unless $self->comment->visible_to( $remote );
     }
     
+    #warn ("got past a set of checks..");
     return 1 if $self->{'security'} eq "public";
     
     # must be logged in otherwise
@@ -439,6 +496,7 @@ sub visible_to {
     my $remoteid = int( $remote->{userid} );
     
     # owners can always see their own.
+    #warn ("checking owner ($userid == $remoteid)");
     return 1 if $userid == $remoteid;
 
     # should be 'usemask' or 'private' security from here out, otherwise

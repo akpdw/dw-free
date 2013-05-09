@@ -1,0 +1,51 @@
+[%# bookmarks/manage.tt
+
+Shows a set of bookmarks to be managed.
+
+Authors:
+    Allen Petersen <allen@suberic.net>
+
+This program is free software; you may redistribute it and/or modify it 
+under the same terms as Perl itself.  For a copy of the license, please 
+reference 'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+
+<section id="bmark_bookmarks">
+<form method="post" action="/bookmarks/delete">
+<h2>[% IF user %][% user.ljuser_display %]'s [% END %]Bookmarks</h2>
+
+<nav class="bmark_nav">
+  <ul>
+    <li><a id="nav_bmarks_all" href = "[%- user.journal_base | url %]/bookmarks">all</a></li>
+    <li><a id="nav_bmarks_private" href = "[%- user.journal_base | url %]/bookmarks?q=security:private">private</a></li>
+    <li><a id="nav_bmarks_locked" href = "[%- user.journal_base | url %]/bookmarks?q=security:locked">locked</a></li>
+    <li><a id="nav_bmarks_public" href = "[%- user.journal_base | url %]/bookmarks?q=security:public">public</a></li>
+    <li><a id="nav_bmarks_untagged" href = "[%- user.journal_base | url %]/bookmarks?q=untagged">untagged</a></li>
+    <li><a id="nav_bmarks_manage" href = "[%- user.journal_base | url %]/bookmarks/manage">manage</a></li>
+  </ul>
+</nav>
+
+<div class="bmark_edit_controller">
+    <!--<a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a> --><button>Post</button> <button>Delete</button>
+</div>
+
+<ol class="dw_bmark_list">
+  [% FOREACH bookmark = bookmarks %]
+  <li>[% dw.scoped_include( "bookmarks/bookmark.tt" ); %]</li>
+  [% END %]
+</ol>
+
+</form>
+
+<div class="bmark_pager">
+[% IF page_before %]
+<a href = "/bookmarks/manage?before=[% page_before %]">Previous Page</a>  
+[% END %]
+
+[% IF page_after %]
+<a href = "/bookmarks/manage?after=[% page_after %]">Next Page</a>  
+[% END %]
+</div>
+
+</section>

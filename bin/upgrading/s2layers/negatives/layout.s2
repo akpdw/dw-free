@@ -202,6 +202,7 @@ propgroup text {
     property use text_view_memories;
     property use text_view_userinfo;
 
+    property use text_bookmark_add;
     property use text_entry_prev;
     property use text_entry_next;
     property use text_edit_entry;

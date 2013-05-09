@@ -197,7 +197,7 @@ sub _load_objs_from_keys {
 
         my $qs = join( ', ', map { '?' } @memcache_misses );
         
-        #warn("running SELECT " . join ( ',' , ( $class->_key_column, $class->_obj_props ) ) . " FROM " . $class->_tablename . " WHERE " .  $class->_key_column . " IN ( $qs )");
+        #warn("running SELECT " . join ( ',' , ( $class->_key_column, $class->_obj_props ) ) . " FROM " . $class->_tablename . " WHERE " .  $class->_key_column . " IN ( $qs ), @memcache_misses");
         my $sth = $dbr->prepare( "SELECT " . join ( ',' , ( $class->_key_column, $class->_obj_props ) ) . " FROM " . $class->_tablename . " WHERE ".  $class->_key_column . " IN ( $qs )");
         $sth->execute( @memcache_misses );
         LJ::throw( $dbr->err ) if ( $dbr->err );
@@ -234,9 +234,9 @@ sub _copy_from_object {
 
     # go through each property available and 
     foreach my $prop ( $self->_editable_obj_props ) {
-        warn("checking $prop");
+        #warn("checking $prop");
         if ( exists $source->{$prop} ) {
-            warn("setting $prop = " . $source->{$prop});
+            #warn("setting $prop = " . $source->{$prop});
             $self->{$prop} = $source->{$prop};
         }
     }
@@ -315,11 +315,11 @@ sub _search_ids {
 
     my $dbr = $class->get_db_reader();
 
-    warn("running SELECT " . $class->_key_column . " FROM " . $class->_tablename . " " . $where_clause . " values - " . join (",", @values ) );
+    #warn("running SELECT " . $class->_key_column . " FROM " . $class->_tablename . " " . $where_clause . " values - " . join (",", @values ) );
     my $ids = $dbr->selectcol_arrayref( "SELECT " . $class->_key_column . " FROM " . $class->_tablename . " " . $where_clause . " " . $class->_default_order_by, undef, @values );
     LJ::throw( $dbr->errstr ) if $dbr->err;
     
-    warn("for search_ids, got $ids - scalar " . scalar @$ids . "; values " . join(",", @$ids ) );
+    #warn("for search_ids, got $ids - scalar " . scalar @$ids . "; values " . join(",", @$ids ) );
     return $ids;
 }
 
@@ -354,8 +354,8 @@ sub _keys_by_value {
         $ids = $class->_load_keys( $field, $value );
         #warn("got $ids");
         if ( $ids && ref $ids eq 'ARRAY' && scalar @$ids > 1 ) {
-            #warn("(not) returning ids - " . join(",", @$ids ) );
-            return wantarray ? @$ids : $;
+            #warn("returning ids - " . join(",", @$ids ) );
+            return wantarray ? @$ids : $ids;
         }
     }
 
@@ -376,24 +376,26 @@ sub _keys_by_value {
 sub _keys_by_search {
     my ( $class, $search ) = @_;
 
-    warn("running _keys_by_search");
+    #warn("running _keys_by_search");
     my $ids;
     # see if we can get it from memcache
     my @objs;
     # see if we can get it from memcache
+    # FIXME figure out how to make a proper key for search, as well as
+    # how to clear those (dynammic) searches on update
     #if ( $class->memcache_query_enabled ) {
         #warn("running _keys_by_value for memcache.");
-        # $ids = $class->_load_keys( $field, $value );
+        #$ids = $class->_load_keys( $field, $value );
         #warn("got $ids");
         #if ( $ids && ref $ids eq 'ARRAY' && scalar @$ids > 1 ) {
             #warn("(not) returning ids - " . join(",", @$ids ) );
         #    return wantarray ? @$ids : $;
         #}
     #}
-
+    
     # if we didn't get anything from memcache, try the database
-
-    warn("checking db");
+    
+    #warn("checking db");
     my $where_clause = "WHERE ";
     my @values = ();
     foreach my $searchterm ( @$search ) {
@@ -407,10 +409,10 @@ sub _keys_by_search {
         } elsif ( $searchterm->{value} ) {
             push @values, $searchterm->{value};
         }
-        warn("whereclause = " . $where_clause);
+        #warn("whereclause = " . $where_clause);
     }
     $ids = $class->_search_ids( $where_clause, @values );
-    warn("searched ids; got $ids - " . join(",", @$ids ));
+    #warn("searched ids; got $ids - " . join(",", @$ids ));
     
     #if ( $class->memcache_query_enabled ) {
     #    $class->_store_keys( $field, $value, $ids );

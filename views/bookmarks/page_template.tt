@@ -1,7 +1,7 @@
-[%# bookmarks/page_template.tt
+[%# bookmarks/page_template_2.tt
 
-The page template for bookmarks.  Includes basic css, navigation, and page
-layout for bookmark pages, plus the included main page (as bmarK_main_page).
+The page template for bookmarks.  Includes basic css, jquery, navigation, 
+and then renders the subsections for the bookmarks.
 
 Authors:
     Allen Petersen <allen@suberic.net>
@@ -23,4 +23,6 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 [% dw.scoped_include( "bookmarks/nav.tt" ); %]
 
-[% dw.scoped_include( bmark_main_page ); %]
+[% FOREACH bmark_page = bmark_pages %]
+  [% dw.scoped_include( bmark_page ); %]
+[% END %]

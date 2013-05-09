@@ -1382,6 +1382,11 @@ property string text_stickyentry_subject {
 }
 set text_stickyentry_subject = "Sticky: ";
 
+property string text_bookmark_add {
+    des = "Text to add an entry into bookmarks";
+}
+set text_bookmark_add = "Add to Bookmarks";
+
 property string text_edit_entry {
     des = "Text to edit an entry";
 }

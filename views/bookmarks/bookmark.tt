@@ -1,13 +1,15 @@
-<article class="bmark">
+<article class="bmark" id="bmark_[% bookmark.id %]">
 [% IF showedit %]
 <input type="checkbox" id="bmark_select_[% bookmark.id %]" name="bookmark">
 <a href = "[%- bookmark.journal.root | url %]/bookmarks/bookmark/[% bookmark.id %]/edit">Edit</a>
 [% END %]
-[% IF post %]
-<input type="checkbox" id="post_id_[% bookmark.id %]" name="post_id" value="[% bookmark.id %]">
+[%# smart match ~~ not in TT :( IF post && ! postlist ~~ bookmark.id %]
+[% IF post && ! postids.defined( bookmark.id ) %]
+<input type="checkbox" class="bmark_post_select" id="post_id_[% bookmark.id %]" name="post_id" value="[% bookmark.id %]">
+<button class="bmark-post-add" data-bmarkid="[% bookmark.id %]">[% '.add' | ml %]</button>
 [% END %]
 <div class="bmark_title"><a href = "[% bookmark.url | url %]">[% bookmark.title %]</a></div>
-<div class="bmark_url"><a href = "[% bookmark.url | url %]">[% bookmark.url %]</a></div>
+<div class="bmark_url">[% dw.scoped_include( "bookmarks/bookmark_url_display.tt" ); %]</div>
 <div class="bmark_comment">[% bookmark.comment | html %]</div>
 <div class="bmark_tags">[% FOREACH tag = bookmark.tags %]<a href="/bookmarks/tag/[% tag | html %]">[% tag | html %]</a> [% END %]</div>
 <div class="bmark_metadata"><span class="bmark_user">[% bookmark.user.ljuser_display %]</span> <span class="bmark_date">[% bookmark.created %]</span> </div>

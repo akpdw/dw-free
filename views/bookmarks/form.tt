@@ -1,30 +1,26 @@
     <fieldset>
       <legend>[% '.legend' | ml %]</legend>
       <ol>
-[%# URL/DW Entry section %] 
-        [% IF bookmark.type== 'url' %]
-        <li class="bmark-type-url"><label for="url">[% '.url' | ml %]</label> <input type="text" name="url" value="[% bookmark.url | html %]"/></li>
-	[% END %]
-        [% IF bookmark.type== 'entry' or bookmark.type == 'comment' %]
-	<li class="bmark-type-entry"><label for="journal">[% '.journal' | ml %]</label><input type="text" name="journal" value="[% bookmark.journal | html %]"/> </li>
-	<li class="bmark-type-entry"><label for="ditemid">[% '.ditemid' | ml %]</label> <input type="text" name="ditemid" value="[% bookmark.ditemid | html %]"/></li>
-        [% IF bookmark.type == 'comment' %]
-	<li class="bmark-type-comment"><label for="talkid">[% '.talkid' | ml %]</label><input type="text" name="talkid" value="[% bookmark.talkid %]"/></li>
-        [% END %]
-        [% END %]
+        [%# URL/DW Entry section %] 
+        [%# URL/DW summry section -- hidden by default %] 
+	<li class="bmark-type-summary"><label>[% '.bookmark' | ml %]</label><span class="bmark-target-summary" data-bmark-valid="[% bookmark.link_is_valid | html %]">[% dw.scoped_include( "bookmarks/bookmark_url_display.tt" ); %]</span><br><button class="bmark-type-change">[% '.change' | ml %]</button></li>
+	<div id="bmark-link-entry">
+          <li class="bmark-type">
+            <fieldset>
+	      <legend>[% '.type' | ml %]</legend> 
+	      <label><input class="bmark_type_radio" type="radio" name="type" value="url"[% IF bookmark.type == 'url' %] checked[% END %]/> [% '.type.url' | ml %]</label> 
+              <label><input class="bmark_type_radio" type="radio" name="type" value="entry"[% IF bookmark.type == 'entry' %] checked[% END %]/>  [% '.type.entry' | ml %]</label>
+	      <label><input class="bmark_type_radio" type="radio" name="type" value="comment"[% IF bookmark.type == 'comment' %] checked[% END %]/> [% '.type.comment' | ml %]</label> 
+	    </fieldset>
+	  </li>
 
-        <div style="display: none;">
-        <li>
-          <fieldset>
-	    <legend>[% '.type' | ml %]</legend> 
-	    <label><input class="bmark_type_radio" type="radio" name="type" value="url"[% IF bookmark.type == 'url' %] checked[% END %]/> [% '.type.url' | ml %]</label> 
-            <label><input class="bmark_type_radio" type="radio" name="type" value="entry"[% IF bookmark.type == 'entry' %] checked[% END %]/>  [% '.type.entry' | ml %]</label>
-	    <label><input class="bmark_type_radio" type="radio" name="type" value="comment"[% IF bookmark.type == 'comment' %] checked[% END %]/> [% '.type.comment' | ml %]</label> 
-	  </fieldset>
-	</li>
-        </div>
+          <li class="bmark-type-url"><label for="url">[% '.url' | ml %]</label> <input type="text" name="url" value="[% bookmark.url | html %]"/></li>
+	  <li class="bmark-type-entry"><label for="journalname">[% '.journalname' | ml %]</label><input type="text" name="journalname" value="[% bookmark.journalname | html %]"/> </li>
+	  <li class="bmark-type-entry"><label for="ditemid">[% '.ditemid' | ml %]</label> <input type="text" name="ditemid" value="[% bookmark.ditemid | html %]"/></li>
+	  <li class="bmark-type-comment"><label for="talkid">[% '.talkid' | ml %]</label><input type="text" name="talkid" value="[% bookmark.talkid %]"/></li>
+	</div>
+        [%# end URL/DW Entry section %] 
 
-[%# end URL/DW Entry section %] 
         <li><label for="title">[% '.bookmark.title' | ml %]</label><input type="text" name="title" value="[% bookmark.title | html %]"/></li>
         <li><label for="comment">[% '.comment' | ml %]</label><textarea name="comment" rows=4 cols=30 width="100%"</textarea>[% bookmark.comment | html %]</textarea></li>
         <li><label for="tag_string">[% '.tag' | ml %]</label><input type="text" name="tag_string" value="[% bookmark.tag_string | html %]"/><div id="recommendedtags" style="display: none;">Recommended tags: </span></li>

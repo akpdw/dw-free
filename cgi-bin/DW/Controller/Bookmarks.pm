@@ -36,9 +36,10 @@ DW::Routing->register_regex( "^/bookmarks/tag/([^/]+)\$", \&tag_handler, user =>
 DW::Routing->register_regex( "/bookmarks/bookmark/([^/]+)\$", \&bookmark_handler, user => 1 );
 DW::Routing->register_regex( "/bookmarks/bookmark/([^/]+)/edit\$", \&edit_bookmark_handler, user => 1 );
 DW::Routing->register_string( "/bookmarks/new", \&new_handler, app => 1, user => 1 );
+DW::Routing->register_string( "/bookmarks/new/validate_link", \&validate_link_handler, app => 1, formats => [ 'json' ]  );
 DW::Routing->register_string( "/bookmarks/manage", \&manage_handler, user => 1 );
 DW::Routing->register_string( "/bookmarks/post", \&post_handler, app => 1 );
-DW::Routing->register_string( "/bookmarks/post/add", \&add_to_post_handler, app => 1, user => 1 );
+DW::Routing->register_string( "/bookmarks/post/add", \&add_to_post_handler, app => 1, user => 1, formats => [ 'html', 'json' ] );
 DW::Routing->register_string( "/bookmarks/post/delete", \&remove_from_post_handler, app => 1, user => 1 );
 DW::Routing->register_string( "/bookmarks/post/clear", \&clear_post_handler, app => 1, user => 1 );
 DW::Routing->register_string( "/bookmarks/autocomplete/tag", \&autocomplete_handler, app => 1, formats => [ 'json' ] );
@@ -81,7 +82,6 @@ sub view_handler {
         }
 
         unless ( $page ) {
-            warn("no page; using old version.");
             my $ids = DW::Bookmarks::Accessor->all_ids_for_user( $user );
             warn("got ids=$ids");
             $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
@@ -114,7 +114,9 @@ sub view_handler {
             # handle post settings if there is a logged in user.
             if ( $vars->{post} ) {
                 my $postlist = DW::Bookmarks::Poster->current_post( $remote );
+                my %postids = map { ( $_->id, 1 ) } @$postlist;
                 $vars->{postlist} = $postlist;
+                $vars->{postids} = \%postids;
                 push @bmark_pages, "bookmarks/post_list.tt";
             } else {
                 # otherwise show tags
@@ -123,7 +125,7 @@ sub view_handler {
                 push @bmark_pages, "bookmarks/tag_list.tt";
             }
             $vars->{bmark_pages} = \@bmark_pages;
-            return render_template_2( $vars );
+            return render_template( $vars );
         }
     } else {
         # return the top bookamrks
@@ -135,7 +137,9 @@ sub view_handler {
             bookmarks => $bookmarks,
             taglist => $taglist,
         };
-        return render_template( 'bookmarks/list.tt', $vars );
+        my @bmark_pages = ( "bookmarks/bookmark_list.tt", "bookmarks/tag_list.tt" );
+        $vars->{bmark_pages} = \@bmark_pages;
+        return render_template( $vars );
     }
 }
 
@@ -157,8 +161,11 @@ sub recent_handler {
         bookmarks => $bookmarks,
         taglist => $tags,
     };
-    warn("vars taglist = " . $vars->{taglist});
-    return render_template( 'bookmarks/list.tt', $vars );
+    #warn("vars taglist = " . $vars->{taglist});
+    
+    my @bmark_pages = ( "bookmarks/bookmark_list.tt", "bookmarks/tag_list.tt" );
+    $vars->{bmark_pages} = \@bmark_pages;
+    return render_template( $vars );
 }
 
 # views the most recent bookmarks of the given user's watch list
@@ -179,7 +186,9 @@ sub watch_handler {
             remote => $remote,
             bookmarks => \@bookmarks
         };
-        return render_template( 'bookmarks/list.tt', $vars );
+        my @bmark_pages = ( "bookmarks/bookmark_list.tt", "bookmarks/tag_list.tt" );
+        $vars->{bmark_pages} = \@bmark_pages;
+        return render_template( $vars );
     }
 
 }
@@ -203,7 +212,9 @@ sub network_handler {
             remote => $remote,
             bookmarks => \@bookmarks
         };
-        return render_template( 'bookmarks/list.tt', $vars );
+        my @bmark_pages = ( "bookmarks/bookmark_list.tt" );
+        $vars->{bmark_pages} = \@bmark_pages;
+        return render_template( $vars );
     } else {
         my @bookmarks = DW::Bookmarks::Accessor->top_bookmarks;
 
@@ -211,7 +222,9 @@ sub network_handler {
             remote => $remote,
             bookmarks => \@bookmarks
         };
-        return render_template( 'bookmarks/list.tt', $vars );
+        my @bmark_pages = ( "bookmarks/bookmark_list.tt", "bookmarks/tag_list.tt" );
+        $vars->{bmark_pages} = \@bmark_pages;
+        return render_template( $vars );
     }
 }
 
@@ -257,10 +270,22 @@ sub new_handler {
     $args->{security} = 'public' unless $args->{security};
     warn("type=" . $args->{type} . "; security = " . $args->{security});
 
+    my $bookmark = DW::Bookmarks::Bookmark->new( -1 );
+    $bookmark->copy_from_object( $args );
+    # and copy over the journal if necessary
+    warn("checking for journalname");
+    if ( $args->{journalname} ) {
+        warn("loading journalname " .  $args->{journalname} );
+        my $j = eval { LJ::load_user( $args->{journalname} ); };
+        if ( $j ) {
+            $bookmark->{journal} = $j;
+        }
+    }
+    
     my $remote = $rv->{remote};
     my $vars = {
         remote => $remote,
-        bookmark => $args,
+        bookmark => $bookmark,
         error_list => $errors,
         fragment => $args->{fragment},
     };
@@ -269,8 +294,41 @@ sub new_handler {
         #return  DW::Template->render_template( 'bookmarks/bookmarklet_add.tt', $vars, { fragment => 1 } );
         return  DW::Template->render_template( 'bookmarks/bookmarklet_add.tt', $vars, { no_sitescheme => 1 } );
     } else {
-        return DW::Template->render_template( 'bookmarks/add.tt', $vars, { fragment => $args->{fragment} } );
+        $vars->{bmark_pages} = [ 'bookmarks/add.tt' ];
+        return render_template( $vars, { fragment => $args->{fragment} } );
     }
+}
+
+# Checks the given bookmark link information and returns the suggested
+# summary if valid, or an error if not.
+sub validate_link_handler {
+    my ( $opts ) = @_;
+
+    warn("validating link...");
+    my $r = DW::Request->get;
+    my $args = $r->get_args;
+
+    my ( $ok, $rv ) = controller( anonymous => 0 );
+
+    return ( $ok, $rv ) unless $ok;
+
+    my $remote = $rv->{remote};
+
+    my $bookmark = DW::Bookmarks::Bookmark->new( -1 );
+    $bookmark->copy_from_object( $args );
+    # and copy over the journal if necessary
+    if ( $args->{journalname} ) {
+        my $j = eval { LJ::load_user( $args->{journalname} ); };
+        if ( $j ) {
+            $bookmark->{journal} = $j;
+        }
+    }
+
+    my $summary = DW::Template->template_string( "bookmarks/bookmark_url_display.tt", { bookmark => $bookmark }, { fragment => 1 } );
+    warn("returning success, summary= " .  $summary);
+    
+    $r->print( JSON::objToJson( { success => 1, summary => $summary } ) );
+    return $r->OK;
 }
 
 # Handles single bookmarks, for viewing or editing
@@ -325,7 +383,9 @@ sub bookmark_handler {
             remote => $remote,
             bookmark => $bookmark,
         };
-        return render_template( 'bookmarks/bookmark.tt', $vars );
+        my @bmark_pages = ( "bookmarks/bookmark_list.tt" );
+        $vars->{bmark_pages} = \@bmark_pages;
+        return render_template( $vars );
     }
 }
 
@@ -361,7 +421,9 @@ sub edit_bookmark_handler {
         remote => $remote,
         bookmark => $bookmark,
     };
-    return render_template( 'bookmarks/edit.tt', $vars );
+    my @bmark_pages = ( "edit.tt" );
+    $vars->{bmark_pages} = \@bmark_pages;
+    return render_template( $vars );
 }
 
 # Displays the tags for a particular entry
@@ -387,7 +449,9 @@ sub entry_handler {
                     bookmarks => \@bookmarks,
                     entry => $entry,
                 };
-                return render_template( 'bookmarks/for_entry.tt', $vars );
+                my @bmark_pages = ( "bookmarks/for_entry.tt" );
+                $vars->{bmark_pages} = \@bmark_pages;
+                return render_template( $vars );
             }
         }
     }
@@ -411,25 +475,27 @@ sub tag_handler {
     my $remote = $rv->{remote};
     my $user = LJ::load_user( $opts->username );
 
+    my $vars;
     if ( $user ) {
         warn("in user context");
         my @bookmarks = DW::Bookmarks::Accessor->visible_by_user_tag( $user, $tag, $remote );
-        my $vars = {
+        $vars = {
             remote => $remote,
             bookmarks => \@bookmarks
         };
-        return render_template( 'bookmarks/list.tt', $vars );
     } else {
         warn("not in user context");
         my @bookmarks = DW::Bookmarks::Accessor->by_tag( $tag );
 
         #warn("returning " . scalar @bookmarks . " bookmarks");
-        my $vars = {
+        $vars = {
             remote => $remote,
             bookmarks => \@bookmarks
         };
-        return render_template( 'bookmarks/list.tt', $vars );
     }
+    my @bmark_pages = ( "bookmarks/bookmark_list.tt" );
+    $vars->{bmark_pages} = \@bmark_pages;
+    return render_template( $vars );
 }
 
 # Tries autocomplete
@@ -546,11 +612,29 @@ sub add_to_post_handler {
     
     DW::Bookmarks::Poster->add_bookmarks( $remote, @$bookmarks );
 
-    #warn("text=$text");
-    #return render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
-    #my $text = render_template( 'bookmarks/list.tt', $vars, { fragment => 1 } );
-    #warn("text=$text");
-    return $r->redirect( $args->{ "source_url" } );
+    if ( $args->{ajax} ) {
+        my $postlist = DW::Bookmarks::Poster->current_post( $remote );
+        my %postids = map { ( $_->id, 1 ) } @$postlist;
+        my $vars = {
+            remote => $remote,
+            bookmark => @$bookmarks[0],
+            postlist => $postlist,
+            postids => \%postids,
+            post => 1,
+        };
+        my $bmarkpage = DW::Template->template_string( "bookmarks/bookmark.tt", $vars, { fragment => 1 } );
+        my $postpage = DW::Template->template_string( "bookmarks/post_list.tt", $vars, { fragment => 1 } );
+        my $result = {
+            success => 1,
+            bmark => $bmarkpage,
+            post => $postpage,
+        };
+        $r->print( JSON::objToJson( $result ) );
+        return $r->OK;
+        
+    } else {
+        return $r->redirect( $args->{ "source_url" } );
+    }
 }
     
 # removes bookmarks to the current post in progress
@@ -641,18 +725,31 @@ sub manage_handler {
             $page = DW::Bookmarks::Accessor->page_visible_by_remote( $ids, $remote, { after => $after, before => $before, page_size => 10 } );
         }
 
-        # and get the user's tags
-        my $taglist = DW::Bookmarks::Accessor->visible_tags_for_user( $user, $remote );
         my $vars = {
             remote => $remote,
             user => $user,
             bookmarks => $page->{items},
             page_before => $page->{page_before},
             page_after => $page->{page_after},
-            taglist => $taglist,
             showedit => 1,
         };
-        return render_template( 'bookmarks/manage.tt', $vars );
+        # if this is an ajax request, then just return the subpage.
+        if ( $args->{ajax} ) {
+            my $subpage = DW::Template->template_string( "bookmarks/bookmark_manage.tt", $vars, { fragment => 1 } );
+            my $result = {
+                success => 1,
+                html => $subpage,
+            };
+            $r->print( JSON::objToJson( $result ) );
+            return $r->OK;
+        } else {
+            # get the user's tags also
+            my $taglist = DW::Bookmarks::Accessor->visible_tags_for_user( $user, $remote );
+            $vars->{taglist} = $taglist,
+            my @bmark_pages = ( "bookmarks/bookmark_manage.tt", "bookmarks/tag_list.tt" );
+            $vars->{bmark_pages} = \@bmark_pages;
+            return render_template( $vars );
+        }
     } else {
         # FIXME figure out what to return in this case
         # return the top bookamrks
@@ -664,21 +761,16 @@ sub manage_handler {
             bookmarks => $bookmarks,
             taglist => $taglist,
         };
-        return render_template( 'bookmarks/list.tt', $vars );
+        my @bmark_pages = ( "bookmarks/bookmark_list.tt", "bookmarks/tag_list.tt" );
+        $vars->{bmark_pages} = \@bmark_pages;
+        return render_template( $vars );
     }
 }
 
 #
 sub render_template {
-    my ( $template, $vars ) = @_;
-    $vars->{bmark_main_page} = $template;
-    return DW::Template->render_template( "bookmarks/page_template.tt", $vars );
-}
-
-#
-sub render_template_2 {
     my ( $vars ) = @_;
-    return DW::Template->render_template( "bookmarks/page_template_2.tt", $vars );
+    return DW::Template->render_template( "bookmarks/page_template.tt", $vars );
 }
 
 # creates a search hash from a query string

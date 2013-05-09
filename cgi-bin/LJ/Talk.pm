@@ -149,7 +149,7 @@ sub link_bar
     # bookmarks
     if ( LJ::is_enabled('bookmarks') ) {
         my $subject_enc = LJ::eurl( $entry->subject_raw );
-        push @linkele, $mlink->("$LJ::SITEROOT/bookmarks/new?type=entry&${jargent}ditemid=$itemid&title=" . $subject_enc, "bookmark", {
+        push @linkele, $mlink->("$LJ::SITEROOT/bookmarks/new?type=entry&journal=$u->{'user'}&amp;ditemid=$itemid&amp;title=" . $subject_enc, "bookmark", {
                                 "data-dwb" => "1",
                                 "data-dwb-type" => "entry",
                                 "data-dwb-journal" => $u->username,

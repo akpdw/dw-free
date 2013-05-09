@@ -1023,6 +1023,7 @@ sub entry_props {
         image_background_entry_position
         text_edit_entry
         text_edit_tags
+        text_bookmark_add
         text_mem_add
         text_tell_friend
         text_watch_comments
