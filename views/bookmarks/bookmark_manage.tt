@@ -12,7 +12,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 
 <section id="bmark_bookmarks">
-<form method="post" action="/bookmarks/delete">
+<form method="post" action="[% site.root %]/bookmarks/delete">
 <h2>[% IF user %][% user.ljuser_display %]'s [% END %]Bookmarks</h2>
 
 <nav class="bmark_nav">
@@ -27,7 +27,12 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 </nav>
 
 <div class="bmark_edit_controller">
-    <!--<a href = "[% site.root %]/bookmarks/post?[% FOREACH bookmark = bookmarks %]ids=[% bookmark.id %]&[% END %]">Post</a> --><button>Post</button> <button>Delete</button>
+  <button name="selectall">[% '.select.all' | ml %]</button>
+  <button name="selectnone">[% '.select.none' | ml %]</button>
+  <button name="private">[% '.mark.private' | ml %]</button>
+  <button name="public">[% '.mark.public' | ml %]</button>
+  <button name="access">[% '.mark.access' | ml %]</button>
+  <button name="delete">[% '.delete' | ml %]</button>
 </div>
 
 <ol class="dw_bmark_list">

@@ -11,7 +11,7 @@ under the same terms as Perl itself.  For a copy of the license, please
 reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 
-[% dw.need_res('stc/bookmarks.css') %]
+[% dw.need_res('stc/bookmarks.css', 'stc/simple-form.css') %]
 
 [%- CALL dw.active_resource_group( "jquery" ) -%]
 

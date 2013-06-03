@@ -21,7 +21,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 [%- dw.need_res( { group => "jquery" },
     # jquery ui
-    "js/jquery.bookmark.add.js",
+    "js/jquery.bookmark.js",
     "js/jquery/jquery-ui-1.10.2.min.js"
 ) -%]
 

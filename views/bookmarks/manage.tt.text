@@ -1,0 +1,14 @@
+.delete=Delete
+
+.mark.access=Access-List Only
+.mark.private=Make Private
+.mark.public=Make Public
+
+.post=Post
+
+.select.all=Select All
+.select.none=Select None
+
+.tag.add=Add Tag
+.tag.remove=Remove Tag
+

@@ -2,9 +2,9 @@ div#content {
     overflow: auto;
 }
 
-div {
+/*div {
     overflow: auto;
-}
+}*/
 
 ol.dw_bmark_list {
     list-style-type: none;
@@ -39,7 +39,7 @@ section#bmark_tags {
 }
 
 nav.bmark_nav {
-    width: 100%;
+    width: 95%;
     font-weight: bold;
     clear: both;
     overflow: auto;

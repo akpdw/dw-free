@@ -1,7 +1,7 @@
 <article class="bmark" id="bmark_[% bookmark.id %]">
 [% IF showedit %]
 <input type="checkbox" id="bmark_select_[% bookmark.id %]" name="bookmark">
-<a href = "[%- bookmark.journal.root | url %]/bookmarks/bookmark/[% bookmark.id %]/edit">Edit</a>
+<a data-bmark-target="#bmark_[% bookmark.id %]" class="bmark-ajax" href = "[%- bookmark.journal.root | url %]/bookmarks/bookmark/[% bookmark.id %]/edit">Edit</a>
 [% END %]
 [%# smart match ~~ not in TT :( IF post && ! postlist ~~ bookmark.id %]
 [% IF post && ! postids.defined( bookmark.id ) %]

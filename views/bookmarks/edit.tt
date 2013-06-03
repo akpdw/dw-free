@@ -43,7 +43,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
     [% dw.form_auth %]
     [% dw.scoped_include( "bookmarks/form.tt" ); %]
     <fieldset class="submit">
-      <input [% IF fragment %]data-dwb-submit-fragment="1"[% END %] type="submit" value="[% '.edit' | ml %]">
+      <input [% IF fragment %]data-dwb-submit-fragment="1" data-bmark-target="#bmark_[% bookmark.id %]" [% END %] type="submit" value="[% '.edit' | ml %]">
     </fieldset>
   </form>
 </div>

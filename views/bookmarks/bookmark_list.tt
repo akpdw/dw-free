@@ -15,12 +15,12 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 [% IF editable %]
 <nav class="bmark_nav">
   <ul>
-    <li><a class="bmark-ajax" id="nav_bmarks_all" href = "[%- user.journal_base | url %]/bookmarks">all</a></li>
-    <li><a class="bmark-ajax" id="nav_bmarks_private" href = "[%- user.journal_base | url %]/bookmarks?q=security:private">private</a></li>
-    <li><a class="bmark-ajax" id="nav_bmarks_locked" href = "[%- user.journal_base | url %]/bookmarks?q=security:locked">locked</a></li>
-    <li><a class="bmark-ajax" id="nav_bmarks_public" href = "[%- user.journal_base | url %]/bookmarks?q=security:public">public</a></li>
-    <li><a class="bmark-ajax" id="nav_bmarks_untagged" href = "[%- user.journal_base | url %]/bookmarks?q=untagged">untagged</a></li>
-    <li><a class="bmark-ajax" id="nav_bmarks_manage" href = "[%- user.journal_base | url %]/bookmarks/manage">manage</a></li>
+    <li><a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" id="nav_bmarks_all" href = "[%- user.journal_base | url %]/bookmarks">all</a></li>
+    <li><a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" id="nav_bmarks_private" href = "[%- user.journal_base | url %]/bookmarks?q=security:private">private</a></li>
+    <li><a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" id="nav_bmarks_locked" href = "[%- user.journal_base | url %]/bookmarks?q=security:locked">locked</a></li>
+    <li><a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" id="nav_bmarks_public" href = "[%- user.journal_base | url %]/bookmarks?q=security:public">public</a></li>
+    <li><a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" id="nav_bmarks_untagged" href = "[%- user.journal_base | url %]/bookmarks?q=untagged">untagged</a></li>
+    <li><a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" id="nav_bmarks_manage" href = "[%- user.journal_base | url %]/bookmarks/manage">manage</a></li>
   </ul>
 </nav>
 [% END %]
@@ -42,11 +42,11 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 <div class="bmark_pager">
 [% IF page_before %]
-<a class="bmark-ajax" href = "/bookmarks?before=[% page_before %]">Previous Page</a>  
+<a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" href = "/bookmarks?before=[% page_before %]">Previous Page</a>  
 [% END %]
 
 [% IF page_after %]
-<a class="bmark-ajax" href = "/bookmarks?after=[% page_after %]">Next Page</a>  
+<a data-bmark-target="#bmark_bookmarks" class="bmark-ajax" href = "/bookmarks?after=[% page_after %]">Next Page</a>  
 [% END %]
 </div>
 </section>

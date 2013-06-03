@@ -359,6 +359,24 @@ sub bookmark_handler {
         $bookmark->copy_from_object( $args );
         $bookmark->update();
 
+        # handle ajax FIXME
+        if ( $args->{ajax} ) {
+            my $vars = {
+                remote => $remote,
+                bookmark => $bookmark,
+                fragment => 1,
+            };
+            warn("ajax set; running as fragment.");
+            my $page = DW::Template->template_string( "bookmarks/bookmark.tt", $vars, { fragment => 1 } );
+            my $result = {
+                success => 1,
+                html => $page,
+            };
+            $r->content_type( "application/json; charset=utf-8" );
+            warn("setting content type to application/json");
+            $r->print( JSON::objToJson( $result ) );
+            return $r->OK;
+        }
         return $r->redirect( "/bookmarks/bookmark/" . $bookmark->id );
     } else {
         warn("didn't do post.");
@@ -383,7 +401,7 @@ sub bookmark_handler {
             remote => $remote,
             bookmark => $bookmark,
         };
-        my @bmark_pages = ( "bookmarks/bookmark_list.tt" );
+        my @bmark_pages = ( "bookmarks/bookmark.tt" );
         $vars->{bmark_pages} = \@bmark_pages;
         return render_template( $vars );
     }
@@ -421,9 +439,22 @@ sub edit_bookmark_handler {
         remote => $remote,
         bookmark => $bookmark,
     };
-    my @bmark_pages = ( "edit.tt" );
-    $vars->{bmark_pages} = \@bmark_pages;
-    return render_template( $vars );
+    warn("checking ajax--'" . $args->{ajax} . "'");
+    if ( $args->{ajax} ) {
+        $vars->{fragment} = 1;
+        warn("ajax set; running as fragment.");
+        my $editpage = DW::Template->template_string( "bookmarks/edit.tt", $vars, { fragment => 1 } );
+        my $result = {
+            success => 1,
+            html => $editpage,
+        };
+        $r->print( JSON::objToJson( $result ) );
+        return $r->OK;
+    } else {
+        my @bmark_pages = ( "bookmarks/edit.tt" );
+        $vars->{bmark_pages} = \@bmark_pages;
+        return render_template( $vars );
+    }
 }
 
 # Displays the tags for a particular entry
