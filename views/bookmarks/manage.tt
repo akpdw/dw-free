@@ -27,13 +27,15 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 </nav>
 
 <div class="bmark_edit_controller">
-  <button name="selectall">[% '.select.all' | ml %]</button>
-  <button name="selectnone">[% '.select.none' | ml %]</button>
-  <button name="private">[% '.mark.private' | ml %]</button>
-  <button name="public">[% '.mark.public' | ml %]</button>
-  <button name="access">[% '.mark.access' | ml %]</button>
-  <button name="delete">[% '.delete' | ml %]</button>
-  <button name="post">[% '.post' | ml %]</button>
+  <ul>
+    <li><button name="selectall">[% '.select.all' | ml %]</button></li>
+    <li><button name="selectnone">[% '.select.none' | ml %]</button></li>
+    <li><button name="private">[% '.mark.private' | ml %]</button></li>
+    <li><button name="public">[% '.mark.public' | ml %]</button></li>
+    <li><button name="access">[% '.mark.access' | ml %]</button></li>
+    <li><button name="delete">[% '.delete' | ml %]</button></li>
+    <li><button name="post">[% '.post' | ml %]</button></li>
+  </ul>
 </div>
 
 <ol class="dw_bmark_list">

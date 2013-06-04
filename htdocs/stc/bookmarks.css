@@ -20,6 +20,7 @@ article.bmark {
     margin: 2em 1em 1em 1em;
     background: #ddd;
     border: 1px solid #000;
+    border-radius: 10px;
     padding: 1em 1em 1em 1em;
 }
 
@@ -110,15 +111,72 @@ div.bmark_tags {
     margin-left: 12em;
 }
 
-.bmark_edit_controller {
+div.bmark_edit_controller {
     float: left;
     clear: both;
     display: block:
     border: 1px solid #000;
     border-radius: 10px;
     padding: 1em 1em 1em 1em;
-    width: 80%;
+    width: 90%;
     overflow: auto;
+    background: #eee;
+}
+
+.bmark_edit_controller button {
+    opacity: 1.0;
+    background:none!important;
+    border:none; 
+    padding:0!important;
+    /*border is optional
+    border-bottom:1px solid #444; */
+    overflow: auto;
+    link-style: none;
+    vertical-align: middle;
+    display: inline;
+    text-decoration: none;
+    color: #C1272D;
+    font: inherit;
+    font-weight: bold;
+}
+.bmark_edit_controller button:focus, button:hover {
+    /* Remove all decorations to look like normal text */
+    background: none;
+    border: none;
+    font: inherit;
+    display: inline;
+    margin: 0em;
+    padding: 0em;
+    outline: none;
+    outline-offset: 0em;
+    /* Additional styles to look like a link */
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+}
+/* Remove extra space inside buttons in Firefox */
+button::-moz-focus-inner {
+    border: none;
+    padding: 0em;
+}
+
+.bmark_edit_controller ul {
+    overflow: auto;
+    list-style: none;
+    float: left;
+}
+.bmark_edit_controller ul li {
+    overflow: auto;
+    float: left;
+    margin-right: 2em;
+    link-style: none;
+    vertical-align: middle;
+    display: inline;
+    line-height: 3em;
+}
+
+.bmark_edit_controller ul li a {
+    text-decoration: none;
 }
 
 .bmark_pager {
